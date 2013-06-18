@@ -8,8 +8,10 @@ default_ph = 2.5
 
 Fragment = Struct.new(:frag, :id, :title, :mz, :mass, :charge, :smiles, :pairing)
 
+progname = File.basename(__FILE__)
+
 parser = Trollop::Parser.new do
-  banner "usage: #{File.basename($0)} [OPTIONS|RULES] <SMARTS> ..."
+  banner "usage: #{progname} [OPTIONS|RULES] <SMARTS> ..."
   text "\noptions:"
   opt :ph, "the pH to use (experimental option)", :default => default_ph
   opt :images, "print out svg images of fragments" 
@@ -20,7 +22,7 @@ parser = Trollop::Parser.new do
     opt rule, rule.to_s.gsub("_",' ')
   end
   text "\nexample:"
-  text "fragmenter.rb -xeh 'CCC(=O)OCCC' 'CCC(=O)OCCC(=O)O'"
+  text "    #{progname} -xeh 'CCC(=O)OCCC' 'CCC(=O)OCCC(=O)O'"
 end
 
 options = parser.parse(ARGV)

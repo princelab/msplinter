@@ -1,5 +1,10 @@
 # msplinter
 
+[![Gem Version][GV img]][Gem Version]
+[![Dependency Status][DS img]][Dependency Status]
+[![Code Climate][CC img]][Code Climate]
+[![Coverage Status][CS img]][Coverage Status]
+
 Predicts how molecules will fragment in a mass spectrometer.  Currently
 focused on lipid fragmentation under CID, HCD or PQD.
 
@@ -24,3 +29,13 @@ Type 'msplinter' with no arguments to see a help message.
 ## Copyright
 
 MIT license.  See LICENSE.txt for further details.
+
+[Gem Version]: https://rubygems.org/gems/msplinter
+[Dependency Status]: https://gemnasium.com/princelab/msplinter
+[Code Climate]: https://codeclimate.com/github/princelab/msplinter
+[Coverage Status]: https://coveralls.io/r/princelab/msplinter
+
+[GV img]: https://badge.fury.io/rb/msplinter.png
+[DS img]: https://gemnasium.com/princelab/msplinter.png
+[CC img]: https://codeclimate.com/github/princelab/msplinter.png
+[CS img]: https://coveralls.io/repos/princelab/msplinter/badge.png?branch=master

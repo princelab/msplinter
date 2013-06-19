@@ -1,7 +1,6 @@
 # msplinter
 
 [![Gem Version][GV img]][Gem Version]
-[![Dependency Status][DS img]][Dependency Status]
 [![Code Climate][CC img]][Code Climate]
 [![Coverage Status][CS img]][Coverage Status]
 
@@ -31,7 +30,6 @@ Type 'msplinter' with no arguments to see a help message.
 MIT license.  See LICENSE.txt for further details.
 
 [Gem Version]: https://rubygems.org/gems/msplinter
-[Dependency Status]: https://gemnasium.com/princelab/msplinter
 [Code Climate]: https://codeclimate.com/github/princelab/msplinter
 [Coverage Status]: https://coveralls.io/r/princelab/msplinter
 

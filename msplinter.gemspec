@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   [
-    ["rubabel", "~> 0.4.1"],
+    ["rubabel", "~> 0.4.2"],
   ].each do |args|
     spec.add_dependency(*args)
   end

@@ -89,6 +89,68 @@ module Rubabel
         reply
       end
 
+      # carbon oxygen dump. returns an array of FragmentSets
+      def cod
+        frags = []
+        matches_rules? :cod, :codoo do
+          self.each_match("C[O;h1,O]", @only_uniqs) do |carbon, oxygen|
+            carbon.atoms.select {|a| a.el == :C }.each do |carbon_nbr|
+              frags << carbonyl_oxygen_dump(carbon, oxygen, carbon_nbr)
+            end
+          end
+        end
+        frags
+      end
+
+      def oxe
+        frags = []
+        matches_rules? :oxe do
+          self.each_match("C-O", @only_uniqs) do |carbon, oxygen|
+            frags << carbon_oxygen_esteal(carbon, oxygen)
+          end
+        end
+        frags
+      end
+
+      def oxh
+        # right now implemented so that a beta hydrogen has to be availabe for
+        # extraction
+        frags = []
+        matches_rules? :oxh do
+          self.each_match("C[C,O]-O", @only_uniqs) do |beta_c, center, oxygen|
+            next unless beta_c.hydrogen_count > 0
+            frags << break_with_double_bond(oxygen, center, beta_c)
+          end
+        end
+        frags
+      end
+
+      def oxhpd
+        frags = []
+        matches_rules? :oxhpd do
+          self.each_match("C-O-P-O", @only_uniqs) do |carbon, alc_oxy, phosphate, beta_carb_oxy|
+            next unless beta_carb_oxy.hydrogen_count > 0
+            frag_set = break_with_double_bond(alc_oxy, phosphate, beta_carb_oxy)
+            frag_set.map! &:convert_dative_bonds!
+            frags << frag_set
+          end
+        end
+        frags
+      end
+
+      def oxepd
+        frags = []
+        matches_rules? :oxepd do
+          self.each_match("P-O-C", @only_uniqs) do |phosphate, oxygen, carbon|
+            frag_set = carbon_oxygen_esteal(phosphate, oxygen)
+            frag_set.map! &:convert_dative_bonds!
+            frags << frag_set
+          end
+        end
+        frags
+      end
+
+
       # an empty array is returned if there are no fragments generated.
       # Hydrogens are added at a pH of 7.4, unless they have already been
       # added.
@@ -100,7 +162,7 @@ module Rubabel
       #     :uniq => false
       #     :errors => :remove | :fix | :ignore  (default is :remove)
       def fragment(opts={})
-        only_uniqs = true
+        @only_uniqs = true
         opts = DEFAULT_OPTIONS.merge(opts)
         rule_sets = opts[:rules]
         rule_sets = [rule_sets] if rule_sets.first.is_a?(Symbol)
@@ -118,47 +180,19 @@ module Rubabel
           @rules = rules
           tmp_frags = []
           to_frag.each do |mol|
-            matches_rules? :cod, :codoo do
-              self.each_match("C[O;h1,O]", only_uniqs) do |carbon, oxygen|
-                carbon.atoms.select {|a| a.el == :C }.each do |carbon_nbr|
-                  tmp_frags << carbonyl_oxygen_dump(carbon, oxygen, carbon_nbr) )
-                end
-              end
-            end
-            matches_rules? :oxe do
-              self.each_match("C-O", only_uniqs) do |carbon, oxygen|
-                tmp_frags << carbon_oxygen_esteal(carbon, oxygen)
-              end
-            end
-            # right now implemented so that a beta hydrogen has to be availabe for
-            # extraction
-            matches_rules? :oxh do
-              self.each_match("C[C,O]-O", only_uniqs) do |beta_c, center, oxygen|
-                next unless beta_c.hydrogen_count > 0
-                tmp_frags << break_with_double_bond(oxygen, center, beta_c)
-              end
-            end
-            matches_rules? :oxhpd do
-              self.each_match("C-O-P-O", only_uniqs) do |carbon, alc_oxy, phosphate, beta_carb_oxy|
-                next unless beta_carb_oxy.hydrogen_count > 0
-                frag_set = break_with_double_bond(alc_oxy, phosphate, beta_carb_oxy)
-                frag_set.map! &:convert_dative_bonds!
-                tmp_frags << frag_set
-              end
-            end
-            matches_rules? :oxepd do
-              self.each_match("P-O-C", only_uniqs) do |phosphate, oxygen, carbon|
-                frag_set = carbon_oxygen_esteal(phosphate, oxygen)
-                frag_set.map! &:convert_dative_bonds!
-                tmp_frags << frag_set
-              end
+            [:cod, :codoo, :oxe, :oxh, :oxhpd, :oxepd].each do |methd|
+              tmp_frags.push self.send(methd)
             end
           end
+          fragment_sets << tmp_frags
+          to_frag = tmp_frags.flatten(1)
         end
 
         case opts[:errors]
         when :remove
-          fragment_sets.select! {|set| allowable_fragmentation?(set) }
+          fragment_sets.each do |frag_set|
+            frag_set.select! {|set| allowable_fragmentation?(set) }
+          end
         when :fix
           raise NotImplementedError
         when :ignore  # do nothing

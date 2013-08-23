@@ -33,7 +33,7 @@ describe Rubabel::Molecule::Fragmentable do
 
       specify 'peroxide' do
         mol = Rubabel["NCC(OO)CC"]
-        frags = mol.fragment(rules: [:codoo])
+        frags = mol.fragment(rules: [:cod])
         frags.flatten(1).map(&:csmiles).should == ["OC[NH3+]", "CCC=O", "C([NH3+])C=O", "CCO"]
       end
 

@@ -6,7 +6,7 @@ module Rubabel
     module Fragmentable
 
       #RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh]
-      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd]
+      RULES = Set[:cod, :oxe, :oxepd, :oxh, :oxhpd]
 
       DEFAULT_OPTIONS = {
         rules: RULES,
@@ -92,7 +92,7 @@ module Rubabel
       # carbon oxygen dump. returns an array of FragmentSets
       def cod
         frags = []
-        matches_rules? :cod, :codoo do
+        matches_rules? :cod do
           self.each_match("C[O;h1,O]", @only_uniqs) do |carbon, oxygen|
             carbon.atoms.select {|a| a.el == :C }.each do |carbon_nbr|
               frags << carbonyl_oxygen_dump(carbon, oxygen, carbon_nbr)
@@ -155,13 +155,21 @@ module Rubabel
       # Hydrogens are added at a pH of 7.4, unless they have already been
       # added.
       #
+      #     .fragment(:cod, :oxe)
+      #     .fragment(:cod, :oxe, :uniq => false)
+      #
+      #     # 
+      #     .fragment([:cod, :oxe], [:cod, :oxhpd], [:cod, :oxhpd] :uniq => false)
+      #
       #     :rules => an array of rules (e.g., [:cod, :oxe]), 
       #        but may also be an array of arrays where each array specifies 
       #        single, double, triple, etc fragmentation
       #        (e.g. [[:cod, :oxe], [:oxe]])
       #     :uniq => false
       #     :errors => :remove | :fix | :ignore  (default is :remove)
-      def fragment(opts={})
+      #
+      # See RULES
+      def fragment(*args)
         @only_uniqs = true
         opts = DEFAULT_OPTIONS.merge(opts)
         rule_sets = opts[:rules]
@@ -180,7 +188,7 @@ module Rubabel
           @rules = rules
           tmp_frags = []
           to_frag.each do |mol|
-            [:cod, :codoo, :oxe, :oxh, :oxhpd, :oxepd].each do |methd|
+            [:cod, :oxe, :oxh, :oxhpd, :oxepd].each do |methd|
               tmp_frags.push self.send(methd)
             end
           end

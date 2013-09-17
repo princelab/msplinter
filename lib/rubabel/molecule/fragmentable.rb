@@ -92,7 +92,7 @@ module Rubabel
         only_uniqs = true
         opts = DEFAULT_OPTIONS.merge(opts)
         opts[:rules].each do |rule| 
-          raise ArgumentError, "bad rule: #{rule}" unless RULES.include?(rule)
+          raise ArgumentError, "bad rule: #{rule}\nThe allowed rules are #{RULES.entries.join(", ")}" unless RULES.include?(rule)
         end
 
         had_hydrogens = self.h_added?

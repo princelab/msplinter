@@ -8,6 +8,16 @@ end
 
 task :default => :spec
 
+task :console do |task|
+  cmd = [ 'irb', "-r './lib/nmatrix.rb'" ]
+  run *cmd
+end
+
+task :pry do |task|
+  cmd = [ 'pry', "-r './lib/nmatrix.rb'" ]
+  run *cmd
+end
+
 require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""

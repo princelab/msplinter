@@ -39,6 +39,7 @@ describe Rubabel::FragmentationTree do
   end
   it "Doesn't create the false product from this lipid test case (loss of a carbonyl from a glycerophosplipid in the middle of the chain" do
     @a.ms2.include?(Rubabel["[C@@H](P(=O)([O-])OC[C@@H](O)CO)(OC(=O)CCCCCCCCCCCCCCC)COC(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_false
+    @a.ms2.include?(Rubabel["[C@@H](P(=O)([O-])OC[C@@H](O)CO)(OC(=O)CCCCCCCCCCCCCCC)COC(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_false
   end
 end
 

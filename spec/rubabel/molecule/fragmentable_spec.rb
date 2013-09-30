@@ -49,6 +49,11 @@ describe Rubabel::Molecule::Fragmentable do
         pieces = mol.fragment(rules: [:cod])
         pieces.flatten(1).map(&:csmiles).should == ["CC", "O=C=O"]
       end
+      specify "cod sometimes causes a fake product" do 
+        # loss of a carbonyl from a glycerophosplipid in the middle of the chain
+        mol = Rubabel["LMGP04010962", :lmid]
+        mol.fragment(rules: [:cod]).include?(Rubabel["[C@@H](P(=O)([O-])OC[C@@H](O)CO)(OC(=O)CCCCCCCCCCCCCCC)COC(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_false
+      end
     end
 
     describe 'oxe: oxygen electron stealing' do

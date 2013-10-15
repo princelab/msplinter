@@ -24,13 +24,17 @@ describe Rubabel::FragmentationTree do
     resp.should == Rubabel[$molecule_test_string, :lmid].fragment(rules: [:cod])
   end
   it "handles ms3 for everything" do 
-    resp = @a.ms3(rules: [:cod, :oxe, :codoo, :oxepd, :oxh, :oxhpd])
+    pending "Fix the :paocc rule first"
+    resp = @a.ms3(rules: [:cod, :oxe, :codoo, :oxepd, :oxh, :oxhpd, :paocc])
     resp.include?(Rubabel["[O-]C(=O)CCCCCCCCCCCCCCC"]).should be_true
     resp.include?(Rubabel["[O-]C(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_true
     # DOESN"T YET WORK
-    binding.pry
-    #resp.include?(Rubabel["[O-]P1(=O)OCC(OC(=O)CCCCCCCCCCCCCCCC)CO1"]).should be_true
-    #resp.include?(Rubabel["CCCCCCCC/C=C\\CCCCCCCC(=O)OCC1CO[P]([O-])(=O)O1"]).should be_true
+    resp.include?(Rubabel["[O-]P1(=O)OCC(OC(=O)CCCCCCCCCCCCCCCC)CO1"]).should be_true
+    resp.include?(Rubabel["CCCCCCCC/C=C\\CCCCCCCC(=O)OCC1CO[P]([O-])(=O)O1"]).should be_true
+  end
+  it "matches with the :paocc rule" do 
+    resp = @a.molecule.ms2(rules: [:paocc])
+    resp.size.>(0).should be_true
   end
   it "it traverses the stack, in order to perform all possible fragmentations" do 
     resp = @a.msn

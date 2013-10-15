@@ -5,7 +5,7 @@ module Rubabel
     module Fragmentable
 
       #RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh]
-      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd]
+      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd ] # I don't want to automatically call this rule, but implement it as a fragmentation event on a subsequent fragment, :paocc] # :paocc is Phosphate Attack On Carbonyl Carbon
 
       DEFAULT_OPTIONS = {
         rules: RULES,
@@ -135,6 +135,17 @@ module Rubabel
             frag_set.map! &:convert_dative_bonds!
             fragment_sets << frag_set
           end
+        end
+        if opts[:rules].any? {|r| [:paocc].include?(r) }
+          matches = self.matches("[CX3](=[OX1])OCCCO-P(=[OX1])[O-]", only_uniqs)
+          matches << self.matches("[CX3](=[OX1])OCCO-P(=[OX1])[O-]" , only_uniqs)
+          selections = []
+          matches.each do |arr|
+            carbon = arr.first
+            phosphate = arr[-3]
+            selections << [arr.first, arr[-5], phosphate, arr.last]
+          end
+          p selections
         end
 
         case opts[:errors]

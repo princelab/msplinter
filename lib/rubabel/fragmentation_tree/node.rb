@@ -13,7 +13,13 @@ module Rubabel
           @parent = self
         end
       end
+      def check_for_double_fragmentations(ms_level)
+        @ms[ms_level].map do |fragment|
+          
+        end
+      end
       def ms2(opts= {})
+        DefaultFragmentOpts.merge(opts)
         @ms << @molecule.fragment(opts)
         @ms_level = 1
         @ms[0]

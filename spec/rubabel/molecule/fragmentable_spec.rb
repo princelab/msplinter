@@ -202,7 +202,6 @@ describe Rubabel::Molecule::Fragmentable do
       it 'allows specific double fragmentation events' do
       end
     end
-
   end
 end
 

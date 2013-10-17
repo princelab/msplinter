@@ -5,10 +5,10 @@ module Rubabel
     module Fragmentable
 
       #RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh]
-      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd ] # I don't want to automatically call this rule, but implement it as a fragmentation event on a subsequent fragment, :paocc] # :paocc is Phosphate Attack On Carbonyl Carbon
+      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd, :paoc] # :paoc is Phosphate Attack On Carbonyl Carbon
 
       DEFAULT_OPTIONS = {
-        rules: RULES,
+        rules: RULES - [:paoc],
         errors: :remove,
         # return only the set of unique fragments
         uniq: false, 
@@ -49,6 +49,33 @@ module Rubabel
         end
         new_carbon.get_bond(new_oxygen).bond_order = 2
         nmol.split
+      end
+
+      # Internal attack of a anionic phosphate oxygen upon a carbon (ester)
+      # resulting in a cyclized product and loss of a fatty acid
+      def phosphate_attack_on_ester_carbon(leaving_oxygen, attacked_carbon, anionic_oxygen)
+        nmol = self.dup
+        #puts "input atoms: #{[leaving_oxygen, attacked_carbon, anionic_oxygen]}"
+
+        leaving_group_oxygen = nmol.atom(leaving_oxygen.id)
+        product_carbon_to_link = nmol.atom(attacked_carbon.id)
+        attacking_oxygen = nmol.atom(anionic_oxygen.id)
+        #1
+        nmol.delete_bond(leaving_group_oxygen, product_carbon_to_link)
+        #2
+        attacking_oxygen.charge=0
+        #3
+        #leaving_oxygen.remove_a_proton!
+        #4
+        nmol.add_bond!(product_carbon_to_link, attacking_oxygen)
+        #5
+
+        #p nmol.write_file("poac_#{Time.now.to_i + rand(10).to_i}.svg")
+        nmol.correct_for_ph!(9)
+        nmol.write_file("nmol.svg")
+        fatty_acid, cyclized = nmol.split.sort_by(&:mol_wt)
+        fatty_acid.correct_for_ph!(2)
+        [fatty_acid, cyclized]
       end
 
       # breaks the bond and gives the electrons to the oxygen
@@ -136,21 +163,20 @@ module Rubabel
             fragment_sets << frag_set
           end
         end
-        if opts[:rules].any? {|r| [:paocc].include?(r) }
+        if opts[:rules].any? {|r| [:paoc].include?(r) }
           matches = self.matches("[CX3](=[OX1])OCCCO-P(=[OX1])[O-]", only_uniqs)
-          matches << self.matches("[CX3](=[OX1])OCCO-P(=[OX1])[O-]" , only_uniqs)
-          selections = []
-          matches.each do |arr|
-            carbon = arr.first
-            phosphate = arr[-3]
-            selections << [arr.first, arr[-5], phosphate, arr.last]
+          matches2 = self.matches("[CX3](=[OX1])OCCO-P(=[OX1])[O-]" , only_uniqs)
+          [matches + matches2].first.each do |arr|
+            next if arr.empty?
+            fragment_sets << phosphate_attack_on_ester_carbon(arr[2], arr[3], arr.last)
+            p fragment_sets.size
           end
-          p selections
         end
 
         case opts[:errors]
         when :remove
           fragment_sets.select! {|set| allowable_fragmentation?(set) }
+          p fragment_sets.size
         when :fix
           raise NotImplementedError
         when :ignore  # do nothing

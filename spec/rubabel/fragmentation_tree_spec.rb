@@ -6,6 +6,7 @@ require 'rubabel/fragmentation_tree.rb'
 require 'pry'
 
 $VERBOSE = nil
+DefaultRules = [:cod, :oxe, :codoo, :oxepd, :oxh, :oxhpd]
 FragmentationTree = Rubabel::FragmentationTree
 $molecule_test_string = "LMGP04010962"
 describe Rubabel::FragmentationTree do 
@@ -25,15 +26,16 @@ describe Rubabel::FragmentationTree do
   end
   it "handles ms3 for everything" do 
     pending 
-    resp = @a.ms3(rules: [:cod, :oxe, :codoo, :oxepd, :oxh, :oxhpd])
+    resp = @a.ms3(rules: DefaultRules)
     resp.include?(Rubabel["[O-]C(=O)CCCCCCCCCCCCCCC"]).should be_true
     resp.include?(Rubabel["[O-]C(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_true
     # DOESN"T YET WORK
     resp.include?(Rubabel["[O-]P1(=O)OCC(OC(=O)CCCCCCCCCCCCCCCC)CO1"]).should be_true
     resp.include?(Rubabel["CCCCCCCC/C=C\\CCCCCCCC(=O)OCC1CO[P]([O-])(=O)O1"]).should be_true
   end
-  it "matches with the :paocc rule" do 
-    resp = @a.molecule.ms2(rules: [:paocc])
+  it "matches with the :paoc rule" do 
+    @mol = Rubabel["CCCCCCCCCCCCCCCC(=O)O[C@@H](COP(=O)([O-])[O-])COC(=O)CCCCCCC/C=C\\CCCCCCCC"]
+    resp = @mol.fragment(rules: [:paoc])
     resp.size.>(0).should be_true
   end
   it "it traverses the stack, in order to perform all possible fragmentations" do 

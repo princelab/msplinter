@@ -65,17 +65,10 @@ module Rubabel
         #2
         attacking_oxygen.charge=0
         #3
-        #leaving_oxygen.remove_a_proton!
+        leaving_group_oxygen.charge=-1
         #4
         nmol.add_bond!(product_carbon_to_link, attacking_oxygen)
-        #5
-
-        #p nmol.write_file("poac_#{Time.now.to_i + rand(10).to_i}.svg")
-        nmol.correct_for_ph!(9)
-        nmol.write_file("nmol.svg")
-        fatty_acid, cyclized = nmol.split.sort_by(&:mol_wt)
-        fatty_acid.correct_for_ph!(2)
-        [fatty_acid, cyclized]
+        nmol.split
       end
 
       # breaks the bond and gives the electrons to the oxygen
@@ -164,10 +157,22 @@ module Rubabel
           end
         end
         if opts[:rules].any? {|r| [:paoc].include?(r) }
-          matches = self.matches("[CX3](=[OX1])OCCCO-P(=[OX1])[O-]", only_uniqs)
-          matches2 = self.matches("[CX3](=[OX1])OCCO-P(=[OX1])[O-]" , only_uniqs)
-          [matches + matches2].first.each do |arr|
-            next if arr.empty?
+          self.matches("[CX3](=[OX1])[OX2]CCCO-P(=[OX1])[O-]", only_uniqs).each do |arr|
+            puts "OCCCO SMART search"
+            #self.write_file("paoc/search.svg", add_atom_index: true)
+            p arr
+            puts "Ester Oxygen" + arr[2].inspect + "\t" + arr[2].atoms.inspect
+            puts "Ester-adjacent Carbon" + arr[3].inspect + "\t" + arr[3].atoms.inspect
+            puts "Anionic Oxygen" + arr.last.inspect + "\t" + arr.last.atoms.inspect
+            fragment_sets << phosphate_attack_on_ester_carbon(arr[2], arr[3], arr.last)
+          end
+          self.matches("[CX3](=[OX1])[OX2]CCO-P(=[OX1])[O-]" , only_uniqs).each do |arr|
+            puts "OCCO SMART search"
+            #self.write_file("paoc/search2.svg", add_atom_index: true)
+            p arr
+            puts "Ester Oxygen" + arr[2].inspect + "\t" + arr[2].atoms.inspect
+            puts "Ester-adjacent Carbon" + arr[3].inspect + "\t" + arr[3].atoms.inspect
+            puts "Anionic Oxygen" + arr.last.inspect + "\t" + arr.last.atoms.inspect
             fragment_sets << phosphate_attack_on_ester_carbon(arr[2], arr[3], arr.last)
             p fragment_sets.size
           end

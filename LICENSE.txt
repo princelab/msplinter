@@ -1,7 +1,7 @@
 Copyright (c) 2013 Brigham Young University
 Authored by: John T. Prince
 
-MIT License
+Affero GPL (http://www.gnu.org/licenses/agpl-3.0.html)
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -54,9 +54,8 @@ module Rubabel
       # Internal attack of a anionic phosphate oxygen upon a carbon (ester)
       # resulting in a cyclized product and loss of a fatty acid
       def phosphate_attack_on_ester_carbon(leaving_oxygen, attacked_carbon, anionic_oxygen)
+        # Duplication and mapping identity to new atoms
         nmol = self.dup
-        #puts "input atoms: #{[leaving_oxygen, attacked_carbon, anionic_oxygen]}"
-
         leaving_group_oxygen = nmol.atom(leaving_oxygen.id)
         product_carbon_to_link = nmol.atom(attacked_carbon.id)
         attacking_oxygen = nmol.atom(anionic_oxygen.id)
@@ -80,6 +79,7 @@ module Rubabel
         is_carboxyl = noxygen.carboxyl_oxygen?
         
         nmol.delete_bond(ncarbon, noxygen)
+        binding.pry
         ncarbon.remove_a_hydride!
         noxygen.remove_a_proton! 
         nmol.split

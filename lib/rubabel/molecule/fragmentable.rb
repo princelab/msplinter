@@ -79,7 +79,7 @@ module Rubabel
         is_carboxyl = noxygen.carboxyl_oxygen?
         
         nmol.delete_bond(ncarbon, noxygen)
-        binding.pry
+        #binding.pry
         ncarbon.remove_a_hydride!
         noxygen.remove_a_proton! 
         nmol.split

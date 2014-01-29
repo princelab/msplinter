@@ -5,7 +5,7 @@ module Rubabel
     module Fragmentable
 
       #RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh]
-      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd, :paoc] # :paoc is Phosphate Attack On Carbonyl Carbon
+      RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd, :paoc, :nc] # :paoc is Phosphate Attack On Carbonyl Carbon
 
       DEFAULT_OPTIONS = {
         rules: RULES - [:paoc],
@@ -23,6 +23,20 @@ module Rubabel
       def allowable_fragmentation?(frags)
         self.num_atoms(true) == frags.reduce(0) {|cnt,fr| cnt + fr.num_atoms(true) }
       end
+
+      # Splits the molecule by cyclization of the nitrogen with loss of water
+      def nitrogen_cyclization(n, tbc, lo)
+        #TODO
+        (nmol, (nitrogen, to_bond_carbon, lost_oxygen)) = dup_molecule([n, tbc, lo])
+        original_n_charge = nitrogen.charge
+        nmol.add_bond!(nitrogen, to_bond_carbon)
+        nmol.delete_bond(lost_oxygen.get_bond(to_bond_carbon))
+        nitrogen.remove_a_proton!
+        nitrogen.charge= original_n_charge
+        nmol.split
+      end
+
+
 
       # splits the molecule between the carbon and carbon_nbr, adds a double
       # bond between the carbon and oxygen, and moves whatever was on the
@@ -79,7 +93,6 @@ module Rubabel
         is_carboxyl = noxygen.carboxyl_oxygen?
         
         nmol.delete_bond(ncarbon, noxygen)
-        #binding.pry
         ncarbon.remove_a_hydride!
         noxygen.remove_a_proton! 
         nmol.split
@@ -175,6 +188,25 @@ module Rubabel
             puts "Anionic Oxygen" + arr.last.inspect + "\t" + arr.last.atoms.inspect
             fragment_sets << phosphate_attack_on_ester_carbon(arr[2], arr[3], arr.last)
             p fragment_sets.size
+          end
+        end
+        if opts[:rules].any? {|r| [:nc].include?(r) }
+          #TODO
+          self.matches("[CX3](=O)[NX3h1]C[CX4][OX2H1]", only_uniqs).each do |arr|
+            puts "C=ONCCOH"
+            carbonyl_carbon = arr.first
+            carbonyl_oxygen = arr[1]
+            nitrogen = arr[2]
+            link_carbon = arr[3]
+            to_bond_carbon = arr[4]
+            leaving_oxygen = arr[5]
+            fragment_sets << nitrogen_cyclization(nitrogen, to_bond_carbon, leaving_oxygen)
+          end
+          self.matches("OCC[NH2,NH1,NH3]", only_uniqs).each do |arr| # works for first case, not second
+            leaving_oxygen = arr.first  
+            to_bond_carbon = arr[1]
+            nitrogen = arr[3]
+            fragment_sets << nitrogen_cyclization(nitrogen, to_bond_carbon, leaving_oxygen)
           end
         end
 

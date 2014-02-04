@@ -28,26 +28,26 @@ describe Rubabel::Molecule::Fragmentable do
       specify 'cod: primary alcohol' do
         mol = Rubabel["NCC(O)CC"]
         frags = mol.fragment(rules: [:cod])
-        frags.flatten(1).map(&:csmiles).should == ["C[NH3+]", "CCC=O", "C([NH3+])C=O", "CC"]
+        frags.flatten(1).map{|a| a.map(&:csmiles) }.flatten.should == ["C[NH3+]", "CCC=O", "C([NH3+])C=O", "CC"]
       end
 
       specify 'peroxide' do
         mol = Rubabel["NCC(OO)CC"]
         frags = mol.fragment(rules: [:cod])
-        frags.flatten(1).map(&:csmiles).should == ["OC[NH3+]", "CCC=O", "C([NH3+])C=O", "CCO"]
+        frags.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["OC[NH3+]", "CCC=O", "C([NH3+])C=O", "CCO"]
       end
 
       specify 'cod: carboxylate' do
         mol = Rubabel["CCC(=O)O"]
         pieces = mol.fragment(rules: [:cod])
-        pieces.flatten(1).map(&:csmiles).should == ["[CH2-]C", "O=C=O"]
+        pieces.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["[CH2-]C", "O=C=O"]
       end
 
       specify 'cod: carboxylic acid' do
         mol = Rubabel["CCC(=O)O"]
         mol.add_h!(1.5)
         pieces = mol.fragment(rules: [:cod])
-        pieces.flatten(1).map(&:csmiles).should == ["CC", "O=C=O"]
+        pieces.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["CC", "O=C=O"]
       end
       specify "cod sometimes causes a fake product" do 
         # loss of a carbonyl from a glycerophosplipid in the middle of the chain
@@ -64,18 +64,18 @@ describe Rubabel::Molecule::Fragmentable do
         mol = Rubabel["CCOCCN"]
         frag_set = mol.fragment(rules: [:oxe])
         frags = frag_set.first
-        frags.first.csmiles.should == "C[CH2+]"
-        frags.last.csmiles.should == '[O-]CC[NH3+]'
-        frags.first.formula.should == 'C2H5+'
-        frags.last.formula.should == 'C2H7NO'
-        frags.first.exact_mass.should be_within(1e-6).of(29.03912516)
-        frags.last.exact_mass.should be_within(1e-6).of(61.052763849)
+        frags.molecules.first.csmiles.should == "C[CH2+]"
+        frags.molecules.last.csmiles.should == '[O-]CC[NH3+]'
+        frags.molecules.first.formula.should == 'C2H5+'
+        frags.molecules.last.formula.should == 'C2H7NO'
+        frags.molecules.first.exact_mass.should be_within(1e-6).of(29.03912516)
+        frags.molecules.last.exact_mass.should be_within(1e-6).of(61.052763849)
       end
 
       specify 'ester to ions' do
         mol = Rubabel["CCOC(=O)CCN"]
         frag_set = mol.fragment(rules: [:oxe])
-        ff = frag_set.first
+        ff = frag_set.first.molecules.first
         ff.first.csmiles.should == 'C[CH2+]'
         ff.last.csmiles.should == '[O-]C(=O)CC[NH3+]'
         ff.first.formula.should == "C2H5+"

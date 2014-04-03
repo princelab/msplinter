@@ -5,3 +5,4 @@ gemspec
 
 gem 'coveralls', require: false
 gem 'pry'
+gem 'rubabel', path: "/home/ryanmt/Dropbox/coding/rubabel"

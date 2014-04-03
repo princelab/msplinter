@@ -39,6 +39,7 @@ describe Rubabel::FragmentationTree do
     resp.size.>(0).should be_true
   end
   it "it traverses the stack, in order to perform all possible fragmentations" do 
+    pending
     resp = @a.msn
     @a.molecule.mol_wt
     resp.flatten.compact.map(&:mol_wt).sort.uniq

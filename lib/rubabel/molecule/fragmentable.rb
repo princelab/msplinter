@@ -4,9 +4,6 @@ Rearrangements = []
 
 Dir.glob(File.join(File.dirname(File.absolute_path(__FILE__)),"fragmentable", "*.rb")).map {|rfile| require rfile }
 
-p Rule_names
-p Rearrangements
-
 module Rubabel
   class Molecule
     module Fragmentable
@@ -116,11 +113,26 @@ module Rubabel
         had_hydrogens = self.h_added?
         self.correct_for_ph!(7.4) unless had_hydrogens
         self.remove_h!
-        fragment_sets = {}
+        fragment_sets = Hash.new {|h,k| h[k] = [] }
         fragments = []
-        @@rearrangements.map do |rule|
+        rules.map do |rule|
           rule_fragments = self.send(rule)
-          fragment_sets[rule] = rule_fragments.flatten.compact
+          fragment_sets[rule] << rule_fragments.flatten.compact
+          fragments << rule_fragments
+        end
+        fragment_sets.each {|k, v| fragment_sets[k] = v.flatten }
+        fragments
+      end #rearrange  
+      def rearrange_but_return_sets(rules: @@rearrangements, errors: :remove, uniq: false)
+        only_uniqs = uniq
+        had_hydrogens = self.h_added?
+        self.correct_for_ph!(7.4) unless had_hydrogens
+        self.remove_h!
+        fragment_sets = Hash.new {|h,k| h[k] = [] }
+        fragments = []
+        rules.map do |rule|
+          rule_fragments = self.send(rule)
+          fragment_sets[rule] << rule_fragments.flatten.compact
           fragments << rule_fragments
         end
         fragment_sets

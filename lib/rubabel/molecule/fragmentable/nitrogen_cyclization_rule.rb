@@ -24,7 +24,6 @@ module Rubabel
 
         # Call the block on any search strings which make sense in the context of the code
         self.matches("[CX3](=O)[NX3h1]C[CX4][OX2H1]", only_uniqs).each do |arr|
-          puts "C=ONCCOH"
           carbonyl_carbon = arr.first
           carbonyl_oxygen = arr[1]
           nitrogen = arr[2]

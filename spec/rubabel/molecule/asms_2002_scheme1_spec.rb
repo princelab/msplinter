@@ -13,8 +13,8 @@ describe Rubabel::Molecule::Fragmentable do
       mol = Rubabel["OCC(NC(=O)C)C(O)C=C"]
       frags = mol.fragment(rules: [:asms_2002_scheme1_a_c1], rearrange: false)
       frags.map{|a| a.map(&:csmiles) }.flatten.should == ["C=CC=O", "CC(=O)NCCO"].reverse
-      second_frags = frags.flatten.map {|a| a.rearrange }
-      second_frags.first[:nitrogen_cyclization].map(&:csmiles).uniq.should == ["O", "CC(=O)N1CC1"]
+      second_frags = frags.flatten.map {|a| a.rearrange_but_return_sets(rules: [:nitrogen_cyclization]) }
+      second_frags.first[:nitrogen_cyclization].flatten.map(&:csmiles).uniq.should == ["O", "CC(=O)N1CC1"]
     end
 
     specify 'rule: b_d1' do
@@ -24,18 +24,19 @@ describe Rubabel::Molecule::Fragmentable do
       frags.map {|a| a.map(&:csmiles)}.flatten.should == ["OC(C1CO1)C=C", "CC(=O)N", "OCC1OC1C=C","CC(=O)N"]
     end
 
-    specify 'rule: b_d1prime' do
+    specify 'rearrangement: b_d1prime_water_loss' do
       mol = Rubabel["OCC(NC(=O)C)C(O)C=C"]
-      pieces = mol.fragment(rules: [:asms_2002_scheme1_b_d1prime])
-      pieces.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == []
-
+      frags = mol.fragment(rules: [:asms_2002_scheme1_b_d1], rearrange: false)
+      second_frags = frags.flatten.map {|a| a.rearrange(rules: [:asms_2002_scheme1_b_d1_water_loss])}
+      second_frags.flatten.map(&:csmiles).uniq.should == [ "CC#N","O", "C=CC=C1CO1"].reverse
     end
 
-    specify 'rearrangement: b_d1prime_loss_formaldehyde' do
-      pending
-      mol = Rubabel["CCC(=O)O"]
-      pieces = mol.fragment(rules: [:cod])
-      pieces.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["CC", "O=C=O"]
+    specify 'rearrangement: b_d1prime_formaldehyde_loss' do
+      mol = Rubabel["OCC(NC(=O)C)C(O)C=C"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_b_d1], rearrange: false)
+      second_frags = frags.flatten.map {|a| a.rearrange(rules: [:asms_2002_scheme1_b_d1_formaldehyde_loss] ) }
+      p second_frags
+      second_frags.flatten.map(&:csmiles).uniq.should == ["C=CC1CO1", "C=O"].reverse
     end
 
   end

@@ -25,7 +25,6 @@ module Rubabel
         self.matches("C=CC([OH1])CN", only_uniqs).each do |carbon2_1, carbon2_2, to_be_carbonyl_carbon, oxygen, link_carbon, nitrogen|
           fragment_sets << fragment.call(to_be_carbonyl_carbon, oxygen,link_carbon)
         end
-        fragment_sets
         fragment_sets.flatten
       end
 
@@ -47,11 +46,54 @@ module Rubabel
         self.matches("N[Ch1]C[OH1]", only_uniqs).each do |nitrogen, to_cyclize_carbon, carbon, oxygen|
           fragment_sets << fragment.call(nitrogen, to_cyclize_carbon, oxygen)
         end
-        fragment_sets
+        fragment_sets.flatten
+      end
+      ::Rearrangements << def asms_2002_scheme1_b_d1_water_loss(only_uniqs = true)
+        fragment_sets = []
+        fragment = lambda do |lo, lc, lh|
+          #duplications and mapping
+          nmol = self.dup
+          leaving_oxygen = nmol.atom(lo.id)
+          link_carbon = nmol.atom(lc.id)
+          losing_hydrogen_atom = nmol.atom(lh.id)
+          # manipulate bonds
+          bond_order = leaving_oxygen.get_bond(link_carbon).bond_order
+          nmol.delete_bond(leaving_oxygen, link_carbon)
+          losing_hydrogen_atom.get_bond(link_carbon).bond_order += bond_order
+          nmol.split
+        end
+
+        # call the block search strings
+        self.matches("[Oh1]C(C=C)[Ch1][OX2h0]", only_uniqs).each do |leaving_oxygen, link_carbon,carbon1, carbon2, losing_hydrogen_carbon, oxygen2|
+          fragment_sets << fragment.call(leaving_oxygen, link_carbon, losing_hydrogen_carbon)
+        end
+        self.matches("O=C[Nh2]", only_uniqs).each do |leaving_oxygen, link_carbon, losing_hydrogen_nitrogen|
+          fragment_sets << fragment.call(leaving_oxygen, link_carbon, losing_hydrogen_nitrogen)
+        end
         fragment_sets.flatten
       end
 
+      ::Rearrangements << def asms_2002_scheme1_b_d1_formaldehyde_loss(only_uniqs = true)
+        fragment_sets = []
+        fragment = lambda do |tco, leavingc, leftc|
+          #duplications and mapping
+          nmol = self.dup
+          to_carbonyl_oxygen = nmol.atom(tco.id)
+          leaving_carbon = nmol.atom(leavingc.id)
+          left_carbon = nmol.atom(leftc.id)
+          # manipulate bonds
+          nmol.delete_bond(leaving_carbon, left_carbon)
+          to_carbonyl_oxygen.get_bond(leaving_carbon).bond_order += 1
+          nmol.split
+        end
 
+        # call the block search strings
+     #     binding.pry if self.matches("[Oh1]C[CX4]([Oh0])[CX4]C=C", only_uniqs).size > 0
+        self.matches("[Oh1]C[CX4]([Oh0])[CX4]C=C", only_uniqs).each do |to_carbonyl_oxygen, leaving_carbon,left_carbon, rest|
+          fragment_sets << fragment.call(to_carbonyl_oxygen, leaving_carbon, left_carbon)
+        end
+        fragment_sets.flatten
+      end
     end # Fragmentable
   end # Molecule
 end #Rubabel

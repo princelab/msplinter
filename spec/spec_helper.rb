@@ -3,6 +3,7 @@ SimpleCov.start
 
 require 'rspec'
 require 'stringio'
+require 'pry'
 
 require 'rspec/core/formatters/progress_formatter'
 # doesn't say so much about pending guys

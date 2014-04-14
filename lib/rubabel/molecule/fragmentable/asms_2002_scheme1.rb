@@ -94,6 +94,74 @@ module Rubabel
         end
         fragment_sets.flatten
       end
+      ::Rule_names << def asms_2002_scheme1_c_e1(only_uniqs = true)
+        fragment_sets = []
+        fragment = lambda do |n, cc, o, tbvc|
+          #duplications and mapping
+          nmol = self.dup
+          nitrogen = nmol.atom(n.id)
+          carbonyl_carbon = nmol.atom(cc.id)
+          oxygen = nmol.atom(o.id)
+          to_be_vinyllic_carbon = nmol.atom(tbvc.id)
+          # manipulate bonds
+          nmol.delete_bond(nitrogen, carbonyl_carbon)
+          carbonyl_carbon.get_bond(to_be_vinyllic_carbon).bond_order += 1
+          nmol.split
+        end
+
+        # call the block search strings
+        self.matches("NC(=O)[CH2]", only_uniqs).each do |nitrogen, carbonyl_carbon, oxygen, to_be_vinyllic_carbon|
+          fragment_sets << fragment.call(nitrogen, carbonyl_carbon, oxygen, to_be_vinyllic_carbon)
+        end
+        fragment_sets.flatten
+      end
+      ::Rule_names << def asms_2002_scheme1_c_e1aprime(only_uniqs=true)
+        fragment_sets = []
+        fragment = lambda do |co, c1, c3, lo|
+          #duplications and mapping
+          nmol = self.dup
+          cyclized_oxygen = nmol.atom(co.id)
+          carbon1 = nmol.atom(c1.id)
+          carbon3 = nmol.atom(c3.id)
+          leaving_oxygen = nmol.atom(lo.id)
+          nitrogen = nmol.matches("N").flatten.first
+          # manipulate bonds
+          nmol.delete_bond(carbon3, leaving_oxygen)
+          nmol.add_bond!(carbon3, cyclized_oxygen)
+          nitrogen.remove_a_proton!
+          nmol.split.first.write 'test.svg'
+          nmol.split
+        end
+
+        # call the block search strings
+        self.matches("[Oh1]CCC([Oh1])", only_uniqs).each do |cyclized_oxygen, carbon1, carbon2, carbon3, leaving_oxygen|
+          fragment_sets << fragment.call(cyclized_oxygen, carbon1, carbon3, leaving_oxygen)
+        end
+        fragment_sets.flatten
+      end
+      alias :asms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss :asms_2002_scheme1_b_d1_formaldehyde_loss
+      ::Rule_names << :asms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss
+      ::Rule_names << def asms_2002_scheme1_c_e1bprime(only_uniqs=true)
+        fragment_sets = []
+        fragment = lambda do |n, c2, lo|
+          #duplications and mapping
+          nmol = self.dup
+          nitrogen = nmol.atom(n.id)
+          carbon2 = nmol.atom(c2.id)
+          leaving_oxygen = nmol.atom(lo.id)
+          # manipulate bonds
+          nmol.delete_bond(carbon2, leaving_oxygen)
+          nmol.add_bond!(carbon2, nitrogen)
+          nitrogen.remove_a_proton!
+          nmol.split
+        end
+
+        # call the block search strings
+        self.matches("NC[CH2](O)", only_uniqs).each do |nitrogen, carbon, carbon2, leaving_oxygen|
+          fragment_sets << fragment.call(nitrogen, carbon2, leaving_oxygen)
+        end
+        fragment_sets.flatten
+      end
     end # Fragmentable
   end # Molecule
 end #Rubabel

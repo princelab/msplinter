@@ -35,12 +35,35 @@ describe Rubabel::Molecule::Fragmentable do
       mol = Rubabel["OCC(NC(=O)C)C(O)C=C"]
       frags = mol.fragment(rules: [:asms_2002_scheme1_b_d1], rearrange: false)
       second_frags = frags.flatten.map {|a| a.rearrange(rules: [:asms_2002_scheme1_b_d1_formaldehyde_loss] ) }
-      p second_frags
       second_frags.flatten.map(&:csmiles).uniq.should == ["C=CC1CO1", "C=O"].reverse
     end
-
+    specify "rule: c_e1" do 
+      mol = Rubabel["OCC(NC(=O)CCCl)C(O)C=C"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1], rearrange: false)
+      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["ClCC=C=O", "OCC(C(C=C)O)N"].reverse
+    end
+    specify "rule: c_e1aprime" do 
+      mol = Rubabel["OCC(C(C=C)O)N"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1aprime], rearrange: false)
+      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "NC1COC1C=C"].reverse
+    end
+    specify "rule: c_e1bprime" do 
+      mol = Rubabel["OCC(C(C=C)O)N"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1bprime], rearrange: false)
+      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "OC(C1CN1)C=C"]
+    end
+    specify "rule: c_e1b_to_d1b" do 
+      mol = Rubabel["OCC(C(C=C)O)N"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1b_to_d1], rearrange: false)
+      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "OC(C1CN1)C=C"]
+    end
+    specify "rule: c_e1b_to_d1bprime" do 
+      mol = Rubabel["OCC(C(C=C)O)N"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1b_to_d1bprime], rearrange: false)
+      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "OC(C1CN1)C=C"]
+    end
   end
 end
 
 # mol.write 'test.svg'
-#frags.flatten.first.write "test.svg"
+#frags.flatten.map.with_index {|m,i| m.write "test_#{i}.svg" }

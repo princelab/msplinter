@@ -162,6 +162,29 @@ module Rubabel
         end
         fragment_sets.flatten
       end
+      ::Rule_names << def asms_2002_scheme1_c_e1b_to_d1bprime(only_uniqs=true)
+        fragment_sets = []
+        fragment = lambda do |co, c, n|
+          #duplications and mapping
+          nmol = self.dup
+          nitrogen = nmol.atom(n.id)
+          carbon = nmol.atom(c.id)
+          cyclized_oxygen = nmol.atom(co.id)
+          # manipulate bonds
+          nmol.delete_bond(nitrogen, carbon)
+          nmol.add_bond!(carbon, cyclized_oxygen)
+          nitrogen.remove_a_proton!
+          nmol.split
+        end
+
+        # call the block search strings
+        self.matches("[Oh1]CC(N)", only_uniqs).each do |cyclized_oxygen, carbon, carbon2, nitrogen|
+          fragment_sets << fragment.call(cyclized_oxygen, carbon2, nitrogen)
+        end
+        fragment_sets.flatten
+      end
+      alias :asms_2002_scheme1_c_e1b_to_d1b :asms_2002_scheme1_c_e1b_to_d1bprime
+      ::Rule_names << :asms_2002_scheme1_c_e1b_to_d1b
     end # Fragmentable
   end # Molecule
 end #Rubabel

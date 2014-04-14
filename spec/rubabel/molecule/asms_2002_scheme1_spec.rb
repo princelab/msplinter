@@ -4,6 +4,7 @@ require 'rubabel'
 require 'rubabel/molecule/fragmentable'
 
 $VERBOSE = nil
+MASS_DELTA = 10/1e6
 
 describe Rubabel::Molecule::Fragmentable do
 
@@ -22,6 +23,7 @@ describe Rubabel::Molecule::Fragmentable do
       frags = mol.fragment(rules: [:asms_2002_scheme1_b_d1], rearrange: false)
       resp = frags.map {|a| a.map(&:csmiles)}
       frags.map {|a| a.map(&:csmiles)}.flatten.should == ["OC(C1CO1)C=C", "CC(=O)N", "OCC1OC1C=C","CC(=O)N"]
+   #   frags.map {|a| a.map(&:mol_wt)}.flatten.inject(:+).should be_close(mol.mol_wt, MASS_DELTA)
     end
 
     specify 'rearrangement: b_d1prime_water_loss' do
@@ -41,26 +43,32 @@ describe Rubabel::Molecule::Fragmentable do
       mol = Rubabel["OCC(NC(=O)CCCl)C(O)C=C"]
       frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1], rearrange: false)
       frags.map {|a| a.map(&:csmiles) }.flatten.should == ["ClCC=C=O", "OCC(C(C=C)O)N"].reverse
+      frags.map {|a| a.map(&:mol_wt)}.flatten.inject(:+).should be_close(mol.mol_wt, MASS_DELTA)
     end
     specify "rule: c_e1aprime" do 
       mol = Rubabel["OCC(C(C=C)O)N"]
       frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1aprime], rearrange: false)
       frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "NC1COC1C=C"].reverse
+      frags.map {|a| a.map(&:mol_wt)}.flatten.inject(:+).should be_close(mol.mol_wt, MASS_DELTA)
     end
     specify "rule: c_e1bprime" do 
       mol = Rubabel["OCC(C(C=C)O)N"]
       frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1bprime], rearrange: false)
       frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "OC(C1CN1)C=C"]
+      frags.map {|a| a.map(&:mol_wt)}.flatten.inject(:+).should be_close(mol.mol_wt, MASS_DELTA)
     end
     specify "rule: c_e1b_to_d1b" do 
       mol = Rubabel["OCC(C(C=C)O)N"]
-      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1b_to_d1], rearrange: false)
-      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "OC(C1CN1)C=C"]
+      frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1b_to_d1b], rearrange: false)
+      frags.map {|a| a.map(&:csmiles) }.flatten.uniq.should == ["OC(C1CO1)C=C","N", "OCC1OC1C=C"]
+  #   frags.map {|a| a.map(&:mol_wt)}.flatten.inject(:+).should be_close(mol.mol_wt, MASS_DELTA)
     end
     specify "rule: c_e1b_to_d1bprime" do 
       mol = Rubabel["OCC(C(C=C)O)N"]
       frags = mol.fragment(rules: [:asms_2002_scheme1_c_e1b_to_d1bprime], rearrange: false)
-      frags.map {|a| a.map(&:csmiles) }.flatten.should == ["O", "OC(C1CN1)C=C"]
+      p frags
+      frags.map {|a| a.map(&:csmiles) }.flatten.uniq.should == ["OC(C1CO1)C=C","N", "OCC1OC1C=C"]
+  #    frags.map {|a| a.map(&:mol_wt)}.flatten.inject(:+).should be_close(mol.mol_wt, MASS_DELTA)
     end
   end
 end

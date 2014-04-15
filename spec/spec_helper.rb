@@ -27,3 +27,5 @@ RSpec.configure do |config|
 end
 
 TESTFILES = File.dirname(__FILE__) + "/testfiles"
+
+MASS_DELTA = 10/1e6

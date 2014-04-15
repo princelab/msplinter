@@ -215,7 +215,6 @@ module Rubabel
           nitrogen.charge = 0
           nmol.split
         end
-        p self.matches("[C;R;r3][N;R;r3][C;R;r3][Ch1;!R](O)C=C", only_uniqs) 
         # call the block search strings
         self.matches("[C;R;r3][N;R;r3][C;R;r3][Ch1;!R](O)C=C", only_uniqs).each do |c1, nitrogen, carbon_linker, alcohol_carbon, oxygen, c2,c3|
           fragment_sets << fragment.call(carbon_linker, alcohol_carbon, oxygen, nitrogen)

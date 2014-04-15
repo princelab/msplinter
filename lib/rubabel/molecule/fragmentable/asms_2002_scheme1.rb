@@ -6,7 +6,7 @@ require_relative "../fragmentable"
 module Rubabel
   class Molecule
     module Fragmentable
-      ::Rule_names << def asms_2002_scheme1_a_c1(only_uniqs = true)
+      ::Rule_names << def jasms_2002_scheme1_a_c1(only_uniqs = true)
         # Create a fragmentation block method
         fragment_sets = []
         fragment = lambda do |tbcc, o, lc|
@@ -28,7 +28,7 @@ module Rubabel
         fragment_sets.flatten
       end
 
-      ::Rule_names << def asms_2002_scheme1_b_d1(only_uniqs = true)
+      ::Rule_names << def jasms_2002_scheme1_b_d1(only_uniqs = true)
         fragment_sets = []
         fragment = lambda do |n, tcc, o|
           #duplications and mapping
@@ -48,7 +48,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rearrangements << def asms_2002_scheme1_b_d1_water_loss(only_uniqs = true)
+      ::Rearrangements << def jasms_2002_scheme1_b_d1_water_loss(only_uniqs = true)
         fragment_sets = []
         fragment = lambda do |lo, lc, lh|
           #duplications and mapping
@@ -73,7 +73,7 @@ module Rubabel
         fragment_sets.flatten
       end
 
-      ::Rearrangements << def asms_2002_scheme1_b_d1_formaldehyde_loss(only_uniqs = true)
+      ::Rearrangements << def jasms_2002_scheme1_b_d1_formaldehyde_loss(only_uniqs = true)
         fragment_sets = []
         fragment = lambda do |tco, leavingc, leftc|
           #duplications and mapping
@@ -94,7 +94,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rule_names << def asms_2002_scheme1_c_e1(only_uniqs = true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1(only_uniqs = true)
         fragment_sets = []
         fragment = lambda do |n, cc, o, tbvc|
           #duplications and mapping
@@ -115,7 +115,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rule_names << def asms_2002_scheme1_c_e1aprime(only_uniqs=true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1aprime(only_uniqs=true)
         fragment_sets = []
         fragment = lambda do |co, c1, c3, lo|
           #duplications and mapping
@@ -139,9 +139,9 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      alias :asms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss :asms_2002_scheme1_b_d1_formaldehyde_loss
-      ::Rule_names << :asms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss
-      ::Rule_names << def asms_2002_scheme1_c_e1bprime(only_uniqs=true)
+      alias :jasms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss :jasms_2002_scheme1_b_d1_formaldehyde_loss
+      ::Rule_names << :jasms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss
+      ::Rule_names << def jasms_2002_scheme1_c_e1bprime(only_uniqs=true)
         fragment_sets = []
         fragment = lambda do |n, c2, lo|
           #duplications and mapping
@@ -162,7 +162,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rule_names << def asms_2002_scheme1_c_e1b_to_d1bprime(only_uniqs=true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1b_to_d1bprime(only_uniqs=true)
         fragment_sets = []
         fragment = lambda do |co, c, n|
           #duplications and mapping
@@ -183,8 +183,45 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      alias :asms_2002_scheme1_c_e1b_to_d1b :asms_2002_scheme1_c_e1b_to_d1bprime
-      ::Rule_names << :asms_2002_scheme1_c_e1b_to_d1b
+      alias :jasms_2002_scheme1_c_e1b_to_d1b :jasms_2002_scheme1_c_e1b_to_d1bprime
+      ::Rule_names << :jasms_2002_scheme1_c_e1b_to_d1b
+      ::Rearrangements << def jasms_2002_scheme1_c_e1_aprimeprime_formaldehyde_loss(only_uniqs=true)
+        fragment_sets = []
+        fragment = lambda do |*arr|
+          #duplications and mapping
+          (nmol,(cyclized_oxygen, freed_carbon, carbon_linked_to_nitrogen, carbon_linker, nitrogen)) = self.dup_molecule(arr)
+          # manipulate bonds
+          nmol.delete_bond(carbon_linker, cyclized_oxygen)
+          nmol.delete_bond(carbon_linked_to_nitrogen, freed_carbon)
+          freed_carbon.get_bond(cyclized_oxygen).bond_order = 2
+          carbon_linked_to_nitrogen.get_bond(carbon_linker).bond_order = 2
+          nitrogen.remove_a_proton!
+          nmol.split
+        end
+        # call the block search strings
+        self.matches("[O;R][C;R]-[C;R](N)[C;R;r4]C=C", only_uniqs).each do |cyclized_oxygen, freed_carbon, carbon_linked_to_nitrogen, nitrogen, carbon_linker,c1, c2|
+          fragment_sets << fragment.call(cyclized_oxygen, freed_carbon, carbon_linked_to_nitrogen, carbon_linker,nitrogen)
+        end
+        fragment_sets.flatten
+      end
+      ::Rearrangements << def jasms_2002_scheme1_c_e1_abprimeprime_water_loss(only_uniqs=true)
+        fragment_sets = []
+        fragment = lambda do |*arr|
+          #duplications and mapping
+          (nmol,(carbon_linker, alcohol_carbon, oxygen, nitrogen)) = self.dup_molecule(arr)
+          # manipulate bonds
+          nmol.delete_bond(alcohol_carbon, oxygen)
+          carbon_linker.get_bond(alcohol_carbon).bond_order = 2
+          nitrogen.charge = 0
+          nmol.split
+        end
+        p self.matches("[C;R;r3][N;R;r3][C;R;r3][Ch1;!R](O)C=C", only_uniqs) 
+        # call the block search strings
+        self.matches("[C;R;r3][N;R;r3][C;R;r3][Ch1;!R](O)C=C", only_uniqs).each do |c1, nitrogen, carbon_linker, alcohol_carbon, oxygen, c2,c3|
+          fragment_sets << fragment.call(carbon_linker, alcohol_carbon, oxygen, nitrogen)
+        end
+        fragment_sets.flatten
+      end
     end # Fragmentable
   end # Molecule
 end #Rubabel

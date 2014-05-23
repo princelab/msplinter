@@ -117,14 +117,14 @@ module Rubabel
       end
       ::Rule_names << def jasms_2002_scheme1_c_e1aprime(only_uniqs=true)
         fragment_sets = []
-        fragment = lambda do |co, c1, c3, lo|
+        fragment = lambda do |co, c1, c3, lo, n|
           #duplications and mapping
           nmol = self.dup
           cyclized_oxygen = nmol.atom(co.id)
           carbon1 = nmol.atom(c1.id)
           carbon3 = nmol.atom(c3.id)
           leaving_oxygen = nmol.atom(lo.id)
-          nitrogen = nmol.matches("N").flatten.first
+          nitrogen = nmol.atom(n.id)
           # manipulate bonds
           nmol.delete_bond(carbon3, leaving_oxygen)
           nmol.add_bond!(carbon3, cyclized_oxygen)
@@ -132,10 +132,9 @@ module Rubabel
           nmol.split.first.write 'test.svg'
           nmol.split
         end
-
         # call the block search strings
-        self.matches("[Oh1]CCC([Oh1])", only_uniqs).each do |cyclized_oxygen, carbon1, carbon2, carbon3, leaving_oxygen|
-          fragment_sets << fragment.call(cyclized_oxygen, carbon1, carbon3, leaving_oxygen)
+        self.matches("[Oh1]CC(C[Oh1])N", only_uniqs).each do |cyclized_oxygen, carbon1, carbon2, carbon3, leaving_oxygen, nitrogen|
+          fragment_sets << fragment.call(cyclized_oxygen, carbon1, carbon3, leaving_oxygen, nitrogen)
         end
         fragment_sets.flatten
       end

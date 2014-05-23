@@ -1,14 +1,15 @@
 # Add rules to these two variables as needed
 #Rule_names << :rule_names
 #Rearrangements << :any_rule_names_that_are_just_rearrangements
+require_relative "../fragmentable"
 
 module Rubabel
   class Molecule
     module Fragmentable
-      def phosphate_attack_on_ester_carbon
+      ::Rule_names << def phosphate_attack_on_ester_carbon(only_uniqs = true)
         # Create a fragmentation block method
         fragment_sets = []
-        fragment = lambda(leaving_oxygen, attacked_carbon, anionic_oxygen) do 
+        fragment = lambda do |leaving_oxygen, attacked_carbon, anionic_oxygen|
           # Duplication and mapping identity to new atoms
           nmol = self.dup
           leaving_group_oxygen = nmol.atom(leaving_oxygen.id)
@@ -34,7 +35,7 @@ module Rubabel
         end
         fragment_sets
       end
-
+      ::Rearrangements << ::Rule_names.last
     end # Fragmentable
   end # Molecule
 end #Rubabel

@@ -1,3 +1,8 @@
 coverage
 .coveralls.yml
 pkg
+*.svg
+*.pdf
+*.ai
+*.xlsx
+

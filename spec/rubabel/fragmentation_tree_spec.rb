@@ -41,8 +41,8 @@ describe Rubabel::FragmentationTree do
   it "it traverses the stack, in order to perform all possible fragmentations" do 
     pending
     resp = @a.msn
-    @a.molecule.mol_wt
-    resp.flatten.compact.map(&:mol_wt).sort.uniq
+    @a.molecule.mass
+    resp.flatten.compact.map(&:mass).sort.uniq
   end
   it "Doesn't create the false product from this lipid test case (loss of a carbonyl from a glycerophosplipid in the middle of the chain" do
     @a.ms2.include?(Rubabel["[C@@H](P(=O)([O-])OC[C@@H](O)CO)(OC(=O)CCCCCCCCCCCCCCC)COC(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_false

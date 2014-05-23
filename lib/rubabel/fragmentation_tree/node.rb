@@ -33,7 +33,7 @@ module Rubabel
         levels_to_traverse = target_level - @ms.size + 1
         @ms << @molecule.fragment(DefaultFragmentOpts) if @ms.empty? and @ms_level == 0
         while levels_to_traverse > 0
-          @ms[@ms_level+1] = @ms[@ms_level].map {|i| i.map {|j| j.fragment(DefaultFragmentOpts) if j.mol_wt > MinimumSizeForFragmentation } }.flatten
+          @ms[@ms_level+1] = @ms[@ms_level].map {|i| i.map {|j| j.fragment(DefaultFragmentOpts) if j.mass > MinimumSizeForFragmentation } }.flatten
           levels_to_traverse -= 1
         end
         @ms_level = target_level - 1

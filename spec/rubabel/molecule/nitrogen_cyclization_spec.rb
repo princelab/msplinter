@@ -29,9 +29,9 @@ describe Rubabel::Molecule::Fragmentable do
       resp.include?(Rubabel["O"]).should be_true
       #TODO write a function to allow for quick product SMARTS searching.should_smarts("r3")
       
-      # Print out the mol_wt
+      # Print out the mass
       if PRINT_MASSES
-        resp.each_with_index{|mol,i| p mol; p mol.mol_wt }
+        resp.each_with_index{|mol,i| p mol; p mol.mass }
       end
     end
     it "method #2 gives cyclized product" do 
@@ -52,9 +52,9 @@ describe Rubabel::Molecule::Fragmentable do
       resp.include?(Rubabel["CCCCCCCCCCCCC/C=C\\C1NC1CO"]).should be_true
       resp.include?(Rubabel["O"]).should be_true
 
-      # Print out the mol_wt
+      # Print out the mass
       if PRINT_MASSES
-        resp.each_with_index{|mol,i| p mol; p mol.mol_wt }
+        resp.each_with_index{|mol,i| p mol; p mol.mass }
       end
     end
   end

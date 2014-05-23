@@ -26,8 +26,8 @@ describe Rubabel::Molecule::Fragmentable do
       resp.include?(Rubabel["[O-]C(=O)CCCCCCCCCCCCCCC"]).should be_true
       resp.include?(Rubabel["[O-]P1(=O)OCC(COC(=O)CCCCCCC/C=C\\CCCCCCCC)O1"]).should be_true
 
-      # Print out the mol_wt
-      # resp.each_with_index{|mol,i| p mol; p mol.mol_wt }
+      # Print out the mass
+      # resp.each_with_index{|mol,i| p mol; p mol.mass }
     end
   end
 end

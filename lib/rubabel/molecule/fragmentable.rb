@@ -74,6 +74,10 @@ module Rubabel
         # Call all rules for now... 
         rules.map do |rule|
           rule_fragments = self.send(rule)
+          rule_fragments = rule_fragments.flatten.compact
+          if self.adducts? 
+            rule_fragments.map {|m| m.adducts = self.adducts }  # TODO THIS IS BAD, it doesn't allow for rules which don't produce adduct added fragments.  I was wrong and need to refactor the rules to account for this.
+          end
           fragment_sets[rule] = rule_fragments.flatten.compact
           fragments << rule_fragments
         end

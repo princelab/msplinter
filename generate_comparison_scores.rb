@@ -40,6 +40,9 @@ def ppm_range(mass, ppm = PPM_BIN_DEFAULT)
   range = (ppm*mass)/1e6
   (mass-range..mass+range)
 end
+def ppm_between(m1, m2)
+  ((m2-m1)/m1*1e6).abs
+end
 
 def create_bins(true_values, comparison_values, bin_width: PPM_BIN_DEFAULT)
   min, max = [true_values.minmax, comparison_values.minmax].flatten.minmax
@@ -69,22 +72,17 @@ def simple_matching(true_values, comparison_values, bin_width: PPM_BIN_DEFAULT)
   bins = create_bins(true_values, comparison_values, bin_width: bin_width)
   p bins.size
   puts "MIGHT WANT TO ADJUST YOUR BIN SIZE... this might take a while!  " if bins.size > 200_000
-  bins2 = create_bins(true_values, comparison_values, bin_width: bin_width)
-  p bins2.size
+  matches_bins = create_bins(true_values, comparison_values, bin_width: bin_width)
+  # Truth and Experiment bins
+  t_e_bins = create_bins(true_values, comparison_values, bin_width: bin_width)
   Mspire::Bin.bin(bins, true_values)
   bins.reject! {|a| a.data.empty?}
-  puts 'cloning...'
-  match_bins = bins.clone
-  puts 'cloning done'
-  Mspire::Bin.bin(match_bins, comparison_values[0..1])
-  puts "finishes with only 2 values"
-  puts "won't finish with >= 3"
-  Mspire::Bin.bin(match_bins, comparison_values)
-  puts 'never gets here'
-  Mspire::Bin.bin(bins2, comparison_values)
-  match_bins.select! {|a| a.data.size > 1}
-  bins2.reject! {|a| a.data.empty?}
-  [bins, match_bins, bins2]
+  Mspire::Bin.bin(t_e_bins, true_values)
+  Mspire::Bin.bin(t_e_bins, comparison_values)
+  t_e_bins.select! {|a| a.data.size > 1}
+  Mspire::Bin.bin(matches_bins, comparison_values)
+  matches_bins.reject! {|a| a.data.empty?}
+  [bins, t_e_bins, matches_bins] # MATCHES BINS isn't what I want it to be...
 end
 
 #testing
@@ -93,6 +91,7 @@ end
 
 # Takes arrays of mz values
 def f1_score(trues, matches, total_searched)
+  p [trues, matches, total_searched].map(&:size)
   # sensitivity/precision
   t_count = trues.size
   true_positives = matches.size
@@ -106,12 +105,12 @@ def f1_score(trues, matches, total_searched)
   p "FN: #{false_negatives}"
   p "Precision: #{precision}"
   p "Sensitivity: #{sensitivity}"
-  
+  [precision, sensitivity]
 end
 
 p f1_score(Array.new(40),Array.new(3), Array.new(5))
 
-bins = simple_matching([350.0, 400.00, 450.0],[350.0,399.0,355.0,424.0], bin_width: 500)
+bins = simple_matching([350.0, 400.00, 450.0],[350.0,400.0,355.0,424.0], bin_width: 500)
 p bins.first.size
 p f1_score(*bins)
 
@@ -120,6 +119,8 @@ def top_n_peak_optimization(truth, spectra, method)
   
 end
 
+## ANDROMEDA
+require 'andromeda'
 def andromeda_algorithm(truth_values, spectra_values)
   # 
 end

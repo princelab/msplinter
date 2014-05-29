@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 require 'mspire/mzml'
 require 'mspire/peaklist'
 require 'mspire/spectrum'
@@ -14,7 +16,7 @@ opt_parse = OptionParser.new do |opts|
   opts.separator "Takes a spectral file, a list of scan numbers, and kicks them out as a single normalized spectrum"
   opts.separator "Output: file_extracted.mzML"
 
-  opts.on("-lMANDATORY", "--list=MANDATORY x,y,z", Array, "List of scan numbers to extract") do |scans|
+  opts.on("-lMANDATORY", "--list=MANDATORY x,y,z", Array, "List of scan numbers to extract", "(assumes that scan number is +1 spectral index)") do |scans|
     options[:selected_scans] = scans.map(&:to_i)
   end
 
@@ -29,39 +31,23 @@ if ARGV.size != 1
 end
 
 file = ARGV.first
+output_file = file.sub(File.extname(file), '_extracted.mzML')
 
-peaklists = []
-
-# pull the intensity list for overall normalization prior
-Mspire::Mzml.open(file) do |mzml|
+# pull the intensity list for overall normalization prior to iterating through these
+peaklists = Mspire::Mzml.open(file) do |mzml|
   options[:selected_scans].map do |i|
-    peaklists << mzml[i-1].to_peaklist
+    sp = mzml[i-1]
+    normalizer = 100.0 / sp.intensities.max
+    sp.intensities.map! {|i| i * normalizer }
+    sp.to_peaklist
   end
 end
 product_peaklist = Mspire::Peaklist.merge(peaklists)# add non-default options here
 
-#
-## WRITE A SPECTRUM for MZML
-#spec1 = Mspire::Mzml::Spectrum.new('scan=1') do |spec|
-#  # profile and ms_level 1
-#  spec.describe_many!(['MS:1000128', ['MS:1000511', 1]])
-#  spec.data_arrays = [
-#    Mspire::Mzml::DataArray[1,2,3].describe!('MS:1000514'),  
-#    Mspire::Mzml::DataArray[4,5,6].describe!('MS:1000515')   
-#  ]
-#  spec.scan_list = Mspire::Mzml::ScanList.new do |sl|
-#    scan = Mspire::Mzml::Scan.new do |scan|
-#      # retention time of 42 seconds
-#      scan.describe! 'MS:1000016', 40.0, 'UO:0000010'
-#    end
-#    sl << scan
-#  end
-#end
-
 
 # Write a MZML
 mzml = Mspire::Mzml.new do |mzml|
-  mzml.id = 'ms1_and_ms2'
+  mzml.id = 'merged spectra'
   mzml.cvs = Mspire::Mzml::CV::DEFAULT_CVS
   mzml.file_description = Mspire::Mzml::FileDescription.new  do |fd|
     fd.file_content = Mspire::Mzml::FileContent.new
@@ -79,9 +65,11 @@ mzml = Mspire::Mzml.new do |mzml|
   mzml.data_processing_list << normalize_processing
   mzml.data_processing_list << default_data_processing
   mzml.run = Mspire::Mzml::Run.new("little_run", default_instrument_config) do |run|
-    spectrum_list = Mspire::Mzml::SpectrumList.new(default_data_processing, Mspire::Mzml::Spectrum.from_arrays("combinedspectrum", product_peaklist.transpose) )
+    spectrum_list = Mspire::Mzml::SpectrumList.new(default_data_processing, [Mspire::Mzml::Spectrum.from_arrays("combinedspectrum", product_peaklist.transpose)] )
     run.spectrum_list = spectrum_list
   end
+  mzml
 end
 
-mzml.write("writtenxml.mzML")
+puts "Writing output file: #{output_file}"
+mzml.write(output_file)

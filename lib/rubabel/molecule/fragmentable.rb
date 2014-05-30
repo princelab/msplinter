@@ -12,6 +12,11 @@ module Rubabel
       #RULES = Set[:cod, :codoo, :oxe, :oxepd, :oxh, :oxhpd, :paoc, :nc] # :paoc is Phosphate Attack On Carbonyl Carbon
       @@rules = Set[*Rule_names]
       @@rearrangements = Set[*Rearrangements]
+      def rules
+        @@rules
+      end
+      RULES = @@rules
+      REARRANGEMENTS = @@rearrangements
 
       DEFAULT_OPTIONS = {
         rules: @@rules - @@rearrangements, 

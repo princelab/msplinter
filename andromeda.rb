@@ -1,7 +1,7 @@
 require 'mspire/mzml'
 require 'mspire/spectrum'
 
-VERBOSE = true
+VERBOSE = false
 class Integer
   def factorial
     (1..self).inject(:*) || 1
@@ -16,16 +16,16 @@ end
 PPM_TOLERANCE = 10
 MAXQ = 10
 class AndromedaPscore
-  def ppm_between(m1, m2)
+  def self.ppm_between(m1, m2)
     ((m2-m1)/m1*1e6).abs
   end
-  def larger_peaks_nearby(spectrum, target_peak, nearby_window_amu: 50)
+  def self.larger_peaks_nearby(spectrum, target_peak, nearby_window_amu: 50)
     target_mass, target_intensity = target_peak
     bottom = spectrum.find_nearest_index(target_mass - nearby_window_amu)
     top = spectrum.find_nearest_index(target_mass + nearby_window_amu)
     spectrum[bottom..top].transpose.select {|a| a.last > target_intensity }
   end
-  def divide_masses_into_windows(masses)
+  def self.divide_masses_into_windows(masses)
     min, max = masses.minmax
     # return window start values to divide the spectrum into ~evenly sized windows < 100 Th
     range = max-min
@@ -34,7 +34,7 @@ class AndromedaPscore
     resp = (bins).times.map {|i| min+i*size}
     resp << max
   end
-  def find_top_peaks_in_window(spectrum, window_bottom, window_top, q_max)
+  def self.find_top_peaks_in_window(spectrum, window_bottom, window_top, q_max)
     putsv "window_bottom: #{window_bottom}"
     putsv "window_top: #{window_top}"
     bottom = spectrum.find_nearest_index(window_bottom)
@@ -42,7 +42,7 @@ class AndromedaPscore
     putsv "window: #{spectrum[bottom..top]}"
     spectrum[bottom..top].transpose.sort_by(&:last)[0..q_max]
   end
-  def calculate_ks(tested_spectrum, gold_standard_spectrum, q_max: MAXQ )
+  def self.calculate_ks(tested_spectrum, gold_standard_spectrum, q_max: MAXQ )
     # Only need masses
     tested_masses = tested_spectrum.mzs
     gold_standard_masses = gold_standard_spectrum.mzs
@@ -64,13 +64,13 @@ class AndromedaPscore
     end
     q_scores
   end
-  def calculate_score(tested_spectrum, gold_standard_spectrum, k, q)
+  def self.calculate_score(tested_spectrum, gold_standard_spectrum, k, q)
     n = gold_standard_spectrum.mzs.size
     permutations = (n.factorial / (k.factorial * (n-k).factorial).to_f)
     sum = (k..n).to_a.map {|j| permutations*(q/100.0)**j * (1-q/100.0)**(n-j) }.inject(:+)
     s = -10*Math::log10(sum)  # sum from j=k to n of (n j)(q/100)^j(1-q/100)^(n-j)
   end
-  def optimize(tested_spectrum, gold_standard_spectrum, q_max: MAXQ)
+  def self.optimize(tested_spectrum, gold_standard_spectrum, q_max: MAXQ)
     ks = calculate_ks(tested_spectrum, gold_standard_spectrum).map(&:size)
     scores = (1..q_max).to_a.map.with_index do |q,i|
       [calculate_score(tested_spectrum, gold_standard_spectrum, ks[i], q), q].flatten

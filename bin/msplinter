@@ -3,6 +3,9 @@
 require 'trollop'
 require 'rubabel'
 require 'rubabel/molecule/fragmentable'
+require 'pry'
+require 'mspire/spectrum'
+require 'mspire/mzml'
 
 default_ph = 2.5
 
@@ -16,10 +19,14 @@ parser = Trollop::Parser.new do
   opt :ph, "the pH to use (experimental option)", :default => default_ph
   opt :images, "print out svg images of fragments" 
   opt :format, "format of the molecules", :default => 'smiles'
+  opt :lmids, "take a list of lmids", type: :strings
+  opt :mzml, "output mzml file of the fragmentation spectra"
+  opt :adducts, "Accepts adducts", type: :strings
+  text "Possible adducts are: #{Rubabel::Molecule::ADDUCTS_LEGEND.keys.join(',')}"
   #opt :uniq, "no repeated fragments", :default => false
   text "\nrules:"
   Rubabel::Molecule::Fragmentable::RULES.each do |rule|
-    opt rule, rule.to_s.gsub("_",' ')
+    # opt rule, rule.to_s.gsub("_",' ')
   end
   text "\nexample:"
   text "    #{progname} -xeh 'CCC(=O)OCCC' 'CCC(=O)OCCC(=O)O'"
@@ -32,38 +39,84 @@ ph = options.delete(:ph)
 opts[:rules] = Rubabel::Molecule::Fragmentable::RULES.map do |rule|
   rule if options["#{rule}_given".to_sym]
 end.compact
+# parse adduct names into chemical formulas
+options[:adducts].map! {|a| Rubabel::Molecule::ADDUCTS_LEGEND[a.to_sym]}.compact if options[:adducts]
 
-if ARGV.size == 0
-  parser.educate && exit
+if ARGV.size == 0 and options[:lmids].nil?
+  parser.educate && exit 
 end
 
-ARGV.each do |smiles|
-  mol = Rubabel[smiles, options[:format].to_sym]
-  puts "\nmolecule: #{mol.csmiles}"
-  mol.correct_for_ph!(ph)
-  puts "at ph #{ph}: #{mol.csmiles}"
-  fragment_sets = mol.fragment(opts)
-  puts %w(mz mass charge title smiles pairing).join("\t")
-  frags = []
-  fragment_sets.each_with_index do |frag_set,i|
-    frag_set.each_with_index do |frag,j|
-      unless frag.charge == 0
-        mz = (frag.mass / frag.charge).round(5)
+if options[:format] == 'smiles'
+  ARGV.each do |smiles|
+    mol = Rubabel[smiles, options[:format].to_sym]
+    puts "\nmolecule: #{mol.csmiles}"
+    mol.correct_for_ph!(ph)
+    puts "at ph #{ph}: #{mol.csmiles}"
+    fragment_sets = mol.fragment(opts)
+    puts %w(mz mass charge title smiles pairing).join("\t")
+    frags = []
+    fragment_sets.each_with_index do |frag_set,i|
+      frag_set.each_with_index do |frag,j|
+        unless frag.charge == 0
+          mz = (frag.mass / frag.charge).round(5)
+        end
+
+        frag.title = "#{i}-#{j}pair_" + (mz ? "#{mz}_mz" : "#{frag.mass.round(3)}_Mass")
+        frag_obj = Fragment.new(frag, frag.title, frag.title, mz, frag.exact_mass, frag.charge, frag.csmiles, i)
+        frags << frag_obj
       end
-
-      frag.title = "#{i}-#{j}pair_" + (mz ? "#{mz}_mz" : "#{frag.mass.round(3)}_Mass")
-      frag_obj = Fragment.new(frag, frag.title, frag.title, mz, frag.exact_mass, frag.charge, frag.csmiles, i)
-      frags << frag_obj
     end
-  end
-  frags = frags.sort_by {|frag| [-frag.charge, frag.mz] }
-  if options[:images]
+    frags = frags.sort_by {|frag| [-frag.charge, frag.mz] }
+    if options[:images]
+      frags.each do |frag|
+        fn = "#{frag.title}.svg"
+        frag.frag.write(fn)
+      end
+    end
     frags.each do |frag|
-      fn = "#{frag.title}.svg"
-      frag.frag.write(fn)
+      puts [:mz, :mass, :charge, :title, :smiles, :pairing].map {|cat| frag.send(cat) }.join("\t")
     end
-  end
-  frags.each do |frag|
-    puts [:mz, :mass, :charge, :title, :smiles, :pairing].map {|cat| frag.send(cat) }.join("\t")
   end
 end
+if options[:lmids]
+  p options[:lmids]
+  binding.pry
+  options[:lmids].map do |lmid|
+    m = Rubabel[lmid, :lmid]
+    m.adducts.push(*options[:adducts]) if options[:adducts]
+    mols = m.fragment
+    masses = mols.flatten.map(&:masses_with_possible_adducts).flatten.sort
+    intensities = Array.new(masses.size) { rand 1000 }
+    spectra = Mspire::Mzml::Spectrum.from_arrays(0, [masses, intensities] )
+    if options[:mzml]
+      outfile = lmid + '.mzML'
+      puts "writing outfile: #{outfile}"
+      require 'mspire/mzml'
+      file = Mspire::Mzml.new do |mzml|
+        mzml.id = 'ms1_and_ms2'
+        mzml.cvs = Mspire::Mzml::CV::DEFAULT_CVS
+        mzml.file_description = Mspire::Mzml::FileDescription.new  do |fd|
+          fd.file_content = Mspire::Mzml::FileContent.new
+          fd.source_files << Mspire::Mzml::SourceFile.new
+        end
+        default_instrument_config = Mspire::Mzml::InstrumentConfiguration.new("IC").describe!('MS:1000031')
+        mzml.instrument_configurations << default_instrument_config
+        mspire = Mspire::Mzml::Software.new
+        mzml.software_list.push(mspire).uniq_by(&:id)
+        spectra_generation = Mspire::Mzml::DataProcessing.new("msplinter fragmentation prediction") do |dp|
+          # "MS:1001458" -> spectrum_generation_information
+          dp.processing_methods << Mspire::Mzml::ProcessingMethod.new(mspire).describe!('MS:1001458')
+        end
+
+        mzml.data_processing_list << spectra_generation
+
+        mzml.run = Mspire::Mzml::Run.new("artificial_run", default_instrument_config) do |run|
+          spectrum_list = Mspire::Mzml::SpectrumList.new(spectra_generation, [spectra])
+          run.spectrum_list = spectrum_list
+        end
+      end
+      file.write(outfile)
+    end
+  end
+end
+

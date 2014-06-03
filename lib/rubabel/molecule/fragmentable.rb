@@ -22,7 +22,8 @@ module Rubabel
         rules: @@rules - @@rearrangements, 
         errors: :remove,
         # return only the set of unique fragments
-        uniq: false 
+        uniq: false,
+        adduct_prediction: true
       }
 
       # molecules and fragments should all have hydrogens added (add_h!)
@@ -58,8 +59,8 @@ module Rubabel
       #     :rules => queryable by :include? set of rules
       #     :uniq => false
       #     :errors => :remove | :fix | :ignore  (default is :remove)
-      def fragment(rules: @@rules- @@rearrangements, errors: :ignore, uniq: false, rearrange: true)
-        only_uniqs = true
+      def fragment(rules: @@rules- @@rearrangements, errors: :ignore, uniq: false, rearrange: true, adduct_prediction: true)
+        only_uniqs = true # Option is currently ignored.
         # opts = DEFAULT_OPTIONS.merge(opts)
         rules.each do |rule| 
           raise ArgumentError, "bad rule: #{rule}\nThe allowed rules are #{@@rules.entries.join(", ")}" unless @@rules.include?(rule)
@@ -78,10 +79,10 @@ module Rubabel
 
         # Call all rules for now... 
         rules.map do |rule|
-          rule_fragments = self.send(rule)
+          rule_fragments = self.send(rule, only_uniqs: only_uniqs, adduct_prediction: adduct_prediction)
           rule_fragments = rule_fragments.flatten.compact
           if self.adducts? 
-            rule_fragments.map {|m| m.adducts = self.adducts }  # TODO THIS IS BAD, it doesn't allow for rules which don't produce adduct added fragments.  I was wrong and need to refactor the rules to account for this.
+          #  rule_fragments.map {|m| m.adducts = self.adducts }  # TODO THIS IS BAD, it doesn't allow for rules which don't produce adduct added fragments.  I was wrong and need to refactor the rules to account for this.
           end
           fragment_sets[rule] = rule_fragments.flatten.compact
           fragments << rule_fragments

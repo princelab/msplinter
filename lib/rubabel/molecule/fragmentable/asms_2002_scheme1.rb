@@ -34,7 +34,11 @@ module Rubabel
         end
       end
 
+<<<<<<< HEAD
       ::Rule_names << def jasms_2002_scheme1_b_d1(only_uniqs: true, adduct_prediction: true)
+=======
+      ::Rule_names << def jasms_2002_scheme1_b_d1((only_uniqs: true, adduct_prediction: true)
+>>>>>>> 461d5bebc2142647c3cc0d9376e5aab848751f7f
         fragment_sets = []
         fragment = lambda do |n, tcc, o|
           #duplications and mapping

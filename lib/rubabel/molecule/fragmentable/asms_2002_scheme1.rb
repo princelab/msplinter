@@ -6,7 +6,7 @@ require_relative "../fragmentable"
 module Rubabel
   class Molecule
     module Fragmentable
-      ::Rule_names << def jasms_2002_scheme1_a_c1(only_uniqs: true, adduct_prediction: true)
+      ::Rule_names << def jasms_2002_scheme1_a_c1(only_uniqs: true, fragment_adduct_state: Rubabel::Molecule::Fragmentable::DEFAULT_OPTIONS[:fragment_adduct_state])
         # Create a fragmentation block method
         fragment_sets = []
         fragment = lambda do |tbcc, o, lc|
@@ -27,14 +27,29 @@ module Rubabel
         end
         if self.adducts.empty?
           fragment_sets.flatten
-        elsif adduct_prediction
-          fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
         else
-          fragment_sets.flatten
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
+          resp
         end
       end
 
-      ::Rule_names << def jasms_2002_scheme1_b_d1(only_uniqs: true, adduct_prediction: true)
+      ::Rule_names << def jasms_2002_scheme1_b_d1(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |n, tcc, o|
           #duplications and mapping
@@ -54,7 +69,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rearrangements << def jasms_2002_scheme1_b_d1_water_loss(only_uniqs: true, adduct_prediction: true)
+      ::Rearrangements << def jasms_2002_scheme1_b_d1_water_loss(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |lo, lc, lh|
           #duplications and mapping
@@ -79,7 +94,7 @@ module Rubabel
         fragment_sets.flatten
       end
 
-      ::Rearrangements << def jasms_2002_scheme1_b_d1_formaldehyde_loss(only_uniqs: true, adduct_prediction: true)
+      ::Rearrangements << def jasms_2002_scheme1_b_d1_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |tco, leavingc, leftc|
           #duplications and mapping
@@ -100,7 +115,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rule_names << def jasms_2002_scheme1_c_e1(only_uniqs: true, adduct_prediction: true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |n, cc, o, tbvc|
           #duplications and mapping
@@ -121,7 +136,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rule_names << def jasms_2002_scheme1_c_e1aprime(only_uniqs: true, adduct_prediction: true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1aprime(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |co, c1, c3, lo, n|
           #duplications and mapping
@@ -146,7 +161,7 @@ module Rubabel
       end
       alias :jasms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss :jasms_2002_scheme1_b_d1_formaldehyde_loss
       ::Rule_names << :jasms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss
-      ::Rule_names << def jasms_2002_scheme1_c_e1bprime(only_uniqs: true, adduct_prediction: true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1bprime(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |n, c2, lo|
           #duplications and mapping
@@ -167,7 +182,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rule_names << def jasms_2002_scheme1_c_e1b_to_d1bprime(only_uniqs: true, adduct_prediction: true)
+      ::Rule_names << def jasms_2002_scheme1_c_e1b_to_d1bprime(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |co, c, n|
           #duplications and mapping
@@ -190,7 +205,7 @@ module Rubabel
       end
       alias :jasms_2002_scheme1_c_e1b_to_d1b :jasms_2002_scheme1_c_e1b_to_d1bprime
       ::Rule_names << :jasms_2002_scheme1_c_e1b_to_d1b
-      ::Rearrangements << def jasms_2002_scheme1_c_e1_aprimeprime_formaldehyde_loss(only_uniqs: true, adduct_prediction: true)
+      ::Rearrangements << def jasms_2002_scheme1_c_e1_aprimeprime_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |*arr|
           #duplications and mapping
@@ -209,7 +224,7 @@ module Rubabel
         end
         fragment_sets.flatten
       end
-      ::Rearrangements << def jasms_2002_scheme1_c_e1_abprimeprime_water_loss(only_uniqs: true, adduct_prediction: true)
+      ::Rearrangements << def jasms_2002_scheme1_c_e1_abprimeprime_water_loss(only_uniqs: true, fragment_adduct_state: true)
         fragment_sets = []
         fragment = lambda do |*arr|
           #duplications and mapping

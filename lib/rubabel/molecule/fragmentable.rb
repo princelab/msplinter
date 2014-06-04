@@ -23,7 +23,7 @@ module Rubabel
         errors: :remove,
         # return only the set of unique fragments
         uniq: false,
-        adduct_prediction: true
+        fragment_adduct_state: :as_published
       }
 
       # molecules and fragments should all have hydrogens added (add_h!)
@@ -59,7 +59,8 @@ module Rubabel
       #     :rules => queryable by :include? set of rules
       #     :uniq => false
       #     :errors => :remove | :fix | :ignore  (default is :remove)
-      def fragment(rules: @@rules- @@rearrangements, errors: :ignore, uniq: false, rearrange: true, adduct_prediction: true)
+      #     :fragment_adduct_state => :force_adducts, :as_published (default), :no_adducts, :all (doubles fragment list size)
+      def fragment(rules: @@rules- @@rearrangements, errors: :ignore, uniq: false, rearrange: true, fragment_adduct_state: DEFAULT_OPTIONS[:fragment_adduct_state])
         only_uniqs = true # Option is currently ignored.
         # opts = DEFAULT_OPTIONS.merge(opts)
         rules.each do |rule| 
@@ -79,7 +80,8 @@ module Rubabel
 
         # Call all rules for now... 
         rules.map do |rule|
-          rule_fragments = self.send(rule, only_uniqs: only_uniqs, adduct_prediction: adduct_prediction)
+          rule_fragments = self.send(rule, only_uniqs: only_uniqs, fragment_adduct_state: fragment_adduct_state)
+          #binding.pry if rule_fragments.nil?
           rule_fragments = rule_fragments.flatten.compact
           if self.adducts? 
           #  rule_fragments.map {|m| m.adducts = self.adducts }  # TODO THIS IS BAD, it doesn't allow for rules which don't produce adduct added fragments.  I was wrong and need to refactor the rules to account for this.

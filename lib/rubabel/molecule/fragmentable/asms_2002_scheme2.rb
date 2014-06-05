@@ -7,7 +7,7 @@ require_relative "../fragmentable"
 module Rubabel
   class Molecule
     module Fragmentable
-      ::Rule_names << def jasms_2002_2_f1(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_f1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -22,9 +22,28 @@ module Rubabel
         self.matches("NC(=O)C(O)C" , only_uniqs).each do |nitrogen, carbonyl, carbonyl_oxygen, alpha_carbon, alcohol_oxygen, carbon|
           fragment_sets << fragment.call(nitrogen, carbonyl, alpha_carbon, alcohol_oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_f1_aprime(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_f1_aprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -37,9 +56,28 @@ module Rubabel
         self.matches("OCC(N)CO" , only_uniqs).each do |cyclized_oxygen, carbon, linked_to_nitrogen_carbon, nitrogen,attacked_carbon, lost_oxygen|
           fragment_sets << fragment.call(cyclized_oxygen, linked_to_nitrogen_carbon, attacked_carbon, lost_oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_f1_bprime(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_f1_bprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -52,9 +90,28 @@ module Rubabel
         self.matches("O[CH2]C([NH1]C=O)CO" , only_uniqs).each do |lost_oxygen, attacked_carbon, linked_to_nitrogen_carbon, nitrogen, *rest|
           fragment_sets << fragment.call(lost_oxygen, attacked_carbon, nitrogen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rearrangements << def jasms_2002_2_f2_bprime_water_loss(only_uniqs=true)
+      ::Rearrangements << def jasms_2002_2_f2_bprime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -67,9 +124,28 @@ module Rubabel
         self.matches("[N;R;r3][CH2;R;r3][CH1;R;r3]C(O)C=C" , only_uniqs).each do |nitrogen, ring_carbon, linked_carbon, alcohol_carbon, oxygen, *rest|
           fragment_sets << fragment.call(linked_carbon, alcohol_carbon, oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rearrangements << def jasms_2002_2_f2_b_methoxy_loss(only_uniqs=true)
+      ::Rearrangements << def jasms_2002_2_f2_b_methoxy_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -85,9 +161,28 @@ module Rubabel
         self.matches("[C;R;r4][CH2;R;r4][O;R;r4][C;R;r4]", only_uniqs).each do |c1, lost_carbon, oxygen, c2|
           fragment_sets << fragment.call(c1, lost_carbon, oxygen, c2)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_e1(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_e1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -103,9 +198,28 @@ module Rubabel
         self.matches("NC(=O)C(O)", only_uniqs).each do |nitrogen, carbonyl_carbon, carbonyl_oxygen, alcohol_carbon, alcohol_oxygen|
           fragment_sets << fragment.call(nitrogen, carbonyl_carbon, carbonyl_oxygen, alcohol_carbon, alcohol_oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_e1_b(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_e1_b(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -119,9 +233,28 @@ module Rubabel
         self.matches("OCC(N)C(O)", only_uniqs).each do |alcohol_oxygen, c1, c2, nitrogen, attacked_carbon, leaving_oxygen|
           fragment_sets << fragment.call(alcohol_oxygen, nitrogen, attacked_carbon, leaving_oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_e1_bprime(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_e1_bprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -135,9 +268,28 @@ module Rubabel
         self.matches("OCC(N)C(O)C=C", only_uniqs).each do |alcohol_oxygen, attacked_carbon, carbon_linker, nitrogen, *rest|
           fragment_sets << fragment.call(alcohol_oxygen, attacked_carbon, carbon_linker, nitrogen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_e2_b_formaldehyde_loss(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_e2_b_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -153,9 +305,28 @@ module Rubabel
         self.matches("NC1COC1C=C", only_uniqs).each do |nitrogen, c1, c2, ester_oxygen, c3, *rest|
           fragment_sets << fragment.call(nitrogen, c1, c2, ester_oxygen, c3)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_e2_bprime_water_loss(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_e2_bprime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -169,9 +340,28 @@ module Rubabel
         self.matches("OCC1CN1", only_uniqs).each do |alcohol_oxygen, c1, c2, c3, nitrogen|
           fragment_sets << fragment.call(alcohol_oxygen, c1, c2, nitrogen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_e2_bprime_heterocyclic_loss(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_e2_bprime_heterocyclic_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -185,9 +375,28 @@ module Rubabel
         self.matches("N1CC1C(O)C=C", only_uniqs).each do |nitrogen, c1, ring_carbon, alcohol_carbon, alcohol_oxygen, *rest|
           fragment_sets << fragment.call(nitrogen, ring_carbon, alcohol_carbon, alcohol_oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_c2a(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_c2a(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -201,9 +410,28 @@ module Rubabel
         self.matches("[N;R;r3]C(=O)C(O)C", only_uniqs).each do |nitrogen, carbonyl_carbon, carbonyl_oxygen, alcohol_carbon, alcohol_oxygen, *rest|
           fragment_sets << fragment.call(nitrogen, carbonyl_carbon, carbonyl_oxygen, alcohol_carbon, alcohol_oxygen)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
-      ::Rule_names << def jasms_2002_2_a1(only_uniqs=true)
+      ::Rule_names << def jasms_2002_2_a1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         fragment = lambda do |*arr|
           # duplicate
@@ -218,7 +446,26 @@ module Rubabel
         self.matches("CC(O)C(=O)N[C;R;r4]", only_uniqs).each do |base_c, alcohol_carbon, alcohol_oxygen, carbonyl_carbon, carbonyl_oxygen, nitrogen, ring_carbon|
           fragment_sets << fragment.call(base_c, alcohol_carbon, alcohol_oxygen, carbonyl_carbon, carbonyl_oxygen, nitrogen, ring_carbon)
         end
-        fragment_sets.flatten
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
       end
 
 

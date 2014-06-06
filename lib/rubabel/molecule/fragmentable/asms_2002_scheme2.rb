@@ -42,6 +42,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_f1_aprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -76,6 +77,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_f1_bprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -110,6 +112,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rearrangements << def jasms_2002_2_f2_bprime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -144,6 +147,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rearrangements << def jasms_2002_2_f2_b_methoxy_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -181,6 +185,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_e1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -218,6 +223,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_e1_b(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -253,6 +259,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_e1_bprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -288,6 +295,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_e2_b_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -325,6 +333,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_e2_bprime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -360,6 +369,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_e2_bprime_heterocyclic_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -395,6 +405,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_c2a(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -430,6 +441,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_2_a1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -466,6 +478,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
 
 

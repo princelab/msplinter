@@ -87,6 +87,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+	end
         end
       ::Rearrangements << def jasms_2002_scheme1_b_d1_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -130,6 +131,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
 
       ::Rearrangements << def jasms_2002_scheme1_b_d1_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
@@ -171,6 +173,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_scheme1_c_e1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -211,6 +214,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_scheme1_c_e1aprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -253,6 +257,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       alias :jasms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss :jasms_2002_scheme1_b_d1_formaldehyde_loss
       ::Rule_names << :jasms_2002_scheme1_c_e1aprimeprime_formaldehyde_loss
@@ -295,6 +300,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_scheme1_c_e1b_to_d1bprime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -335,6 +341,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       alias :jasms_2002_scheme1_c_e1b_to_d1b :jasms_2002_scheme1_c_e1b_to_d1bprime
       ::Rule_names << :jasms_2002_scheme1_c_e1b_to_d1b
@@ -375,6 +382,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rearrangements << def jasms_2002_scheme1_c_e1_abprimeprime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -411,6 +419,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
     end # Fragmentable
   end # Molecule

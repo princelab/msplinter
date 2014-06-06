@@ -40,6 +40,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
 
       ::Rule_names << def jasms_2002_3_b2(only_uniqs: true, fragment_adduct_state: :as_published)
@@ -76,6 +77,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_3_b2_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -110,6 +112,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_3_b2_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -144,6 +147,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_4_g1(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -178,6 +182,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_4_g2a_prime(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -212,6 +217,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_4_g2a(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -246,6 +252,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_4_g2a_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -282,6 +289,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_4_g2a_prime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -316,6 +324,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_5_e1_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -350,6 +359,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_5_e2(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -384,6 +394,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_5_e2_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
@@ -419,6 +430,7 @@ module Rubabel
             fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
             dups + fragment_sets.flatten
           end
+end
       end
       ::Rule_names << def jasms_2002_5_e5_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []

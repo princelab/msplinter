@@ -34,15 +34,18 @@ file = ARGV.first
 output_file = file.sub(File.extname(file), '_extracted.mzML')
 
 # pull the intensity list for overall normalization prior to iterating through these
+
 peaklists = Mspire::Mzml.open(file) do |mzml|
+  intensity_max = options[:selected_scans].map {|i| mzml[i-1].intensities.max}
+  overall_int_max = intensity_max.max
   options[:selected_scans].map do |i|
     sp = mzml[i-1]
-    normalizer = 100.0 / sp.intensities.max
-    sp.intensities.map! {|i| i * normalizer }
+    local_max = sp.intensities.max
+    sp.intensities.map! {|i| (i/local_max) * overall_int_max }
     sp.to_peaklist
   end
 end
-product_peaklist = Mspire::Peaklist.merge(peaklists)# add non-default options here
+product_peaklist = Mspire::Peaklist.merge(peaklists, split: :zero)# add non-default options here
 
 
 # Write a MZML
@@ -65,7 +68,13 @@ mzml = Mspire::Mzml.new do |mzml|
   mzml.data_processing_list << normalize_processing
   mzml.data_processing_list << default_data_processing
   mzml.run = Mspire::Mzml::Run.new("little_run", default_instrument_config) do |run|
-    spectrum_list = Mspire::Mzml::SpectrumList.new(default_data_processing, [Mspire::Mzml::Spectrum.from_arrays("combinedspectrum", product_peaklist.transpose)] )
+    spec = Mspire::Mzml::Spectrum.from_arrays("combinedspectrum", product_peaklist.transpose)
+    if spec.data_arrays.nil?
+      spec.data_arrays = product_peaklist.transpose.zip(['MS:1000514','MS:1000515']).map do |ar, acc|
+        Mspire::Mzml::DataArray.new(ar).describe!(acc)
+      end
+    end
+    spectrum_list = Mspire::Mzml::SpectrumList.new(default_data_processing, [spec] )
     run.spectrum_list = spectrum_list
   end
   mzml

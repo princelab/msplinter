@@ -21,6 +21,7 @@ parser = Trollop::Parser.new do
   opt :format, "format of the molecules", :default => 'smiles'
   opt :lmids, "take a list of lmids", type: :strings
   opt :mzml, "output mzml file of the fragmentation spectra"
+  opt :randomize_intensity, "Outputs randomized intensity values in mzml"
   opt :adducts, "Accepts adducts", type: :strings
   text "Possible adducts are: #{Rubabel::Molecule::ADDUCTS_LEGEND.keys.join(',')}"
   #opt :uniq, "no repeated fragments", :default => false
@@ -85,8 +86,8 @@ if options[:lmids]
     m = Rubabel[lmid, :lmid]
     m.adducts.push(*options[:adducts]) if options[:adducts]
     mols = m.fragment
-    masses = mols.flatten.map(&:masses_with_possible_adducts).flatten.sort
-    intensities = Array.new(masses.size) { rand 1000 }
+    masses = mols.flatten.map(&:mass_with_adduct).flatten.sort
+    intensities = Array.new(masses.size) { options[:randomize_intensity] ? rand(1000) : 1000 }
     spectra = Mspire::Mzml::Spectrum.from_arrays(0, [masses, intensities] )
     if options[:mzml]
       outfile = lmid + '.mzML'

@@ -9,7 +9,7 @@ PPM_BIN_DEFAULT = 10
 MAXQ = 100
 VERBOSE = false
 
-options = {ppm: PPM_BIN_DEFAULT}
+options = {ppm: PPM_BIN_DEFAULT, qmax: MAXQ}
 opt_parse = OptionParser.new do |opts|
   opts.on_tail("-h", "--help", "Show this message") do 
     puts opts
@@ -26,13 +26,13 @@ opt_parse = OptionParser.new do |opts|
     options[:ppm] = p
   end
   opts.on("-q", "--qmax N", Integer, "Set the maximum Q value for searches") do |q|
-    options[:qmax] = q
+    options[:qmax] = q 
   end
 end
 
 opt_parse.parse!(ARGV)
 
-if ARGV.size % 2 != 0
+if ARGV.size % 2 != 0 or ARGV.size == 0
   puts opt_parse
   exit
 end

@@ -6,7 +6,7 @@ require_relative "../fragmentable"
 module Rubabel
   class Molecule
     module Fragmentable
-      ::Rule_names << def break_phosphates_with_double_bond
+      ::Rule_names << def break_phosphates_with_double_bond(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         only_uniqs = true
         fragment = lambda do |electrophile, center, center_nbr|
@@ -23,7 +23,7 @@ module Rubabel
           end
         fragment_sets
       end
-      ::Rule_names << def break_oxygens_with_double_bond
+      ::Rule_names << def break_oxygens_with_double_bond(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         only_uniqs = true
         fragment = lambda do |electrophile, center, center_nbr|
@@ -55,7 +55,7 @@ module Rubabel
         end
         fragment_sets
       end
-      ::Rule_names << def phosphate_oxygen_esteal
+      ::Rule_names << def phosphate_oxygen_esteal(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         only_uniqs = true
         fragment = lambda do |carbon, oxygen|
@@ -75,7 +75,7 @@ module Rubabel
 
         fragment_sets
       end
-      ::Rule_names << def carbonyl_oxygen_dump
+      ::Rule_names << def carbonyl_oxygen_dump(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         only_uniqs = true
         fragment = lambda do |carbon, oxygen, carbon_nbr|

@@ -159,9 +159,9 @@ end
 def optimize_f1_score(gss, cs, ppm: PPM_BIN_DEFAULT, q_max: MAXQ)
   matches = matching(gss, cs, ppm: ppm, q_max: q_max)
   scores = (1..q_max).to_a.map.with_index do |q,i|
-    [calculate_f1_score(*stats_from_matches(gss.mzs, matches[i], cs.mzs))*q, q]
+    [calculate_f1_score(*stats_from_matches(gss.mzs, matches[i], cs.mzs))*q_max/q.to_f, q]
   end
-  p scores
+  #p scores
   scores.sort_by {|a| a.first}.reverse
 end
 
@@ -185,6 +185,7 @@ ARGV.each_slice(2) do |ground_truth_file, comparison_file|
     output = []
     output << %w(truth_file comparison_file F1-score andromedaPscore @q_depth).join(",")
     gss = Mspire::Mzml.open(ground_truth_file) {|mzml| mzml[0]}
+    p gss.mzs.size
     cs = Mspire::Mzml.open(comparison_file) {|m| m[0]}
     f1 = calculate_f1_score(*stats_from_matches(*simple_matching(gss.mzs, cs.mzs, bin_width: options[:ppm])))
     scores = AndromedaPscore.optimize(gss, cs, ppm: options[:ppm], q_max: options[:qmax])

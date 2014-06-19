@@ -38,7 +38,7 @@ module Rubabel
         end
         fragment_sets
       end
-      ::Rule_names << def carbon_oxygen_esteal
+      ::Rule_names << def carbon_oxygen_esteal(only_uniqs: true, fragment_adduct_state: :as_published)
         fragment_sets = []
         only_uniqs = true
         fragment = lambda do |carbon, oxygen|

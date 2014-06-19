@@ -60,7 +60,7 @@ module Rubabel
       #     :uniq => false
       #     :errors => :remove | :fix | :ignore  (default is :remove)
       #     :fragment_adduct_state => :force_adducts, :as_published (default), :no_adducts, :all (doubles fragment list size)
-      def fragment(rules: @@rules- @@rearrangements, errors: :ignore, uniq: false, rearrange: true, fragment_adduct_state: DEFAULT_OPTIONS[:fragment_adduct_state])
+      def fragment(rules: @@rules- @@rearrangements, errors: :ignore, uniq: false, rearrange: true, fragment_adduct_state: DEFAULT_OPTIONS[:fragment_adduct_state], add_rule_names: false)
         only_uniqs = true # Option is currently ignored.
         # opts = DEFAULT_OPTIONS.merge(opts)
         rules.each do |rule| 
@@ -117,8 +117,11 @@ module Rubabel
           #fragment_sets = fragment_sets.uniq_by(&:csmiles)
         end
 
-        fragment_sets # Hash of fragments by rule
-        fragments.select {|a| not a.empty? } #Array of all fragments
+        if add_rule_names
+          fragment_sets # Hash of fragments by rule
+        else
+          fragments.select {|a| not a.empty? } #Array of all fragments
+        end
       end
       def rearrange(rules: @@rearrangements, errors: :remove, uniq: false)
         only_uniqs = uniq

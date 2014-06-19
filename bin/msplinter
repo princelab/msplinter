@@ -21,8 +21,10 @@ parser = Trollop::Parser.new do
   opt :format, "format of the molecules", :default => 'smiles'
   opt :lmids, "take a list of lmids", type: :strings
   opt :mzml, "output mzml file of the fragmentation spectra"
+  opt :mgf, "output mgf file of the fragmentation spectra"
   opt :randomize_intensity, "Outputs randomized intensity values in mzml"
   opt :adducts, "Accepts adducts", type: :strings
+  opt :outdir, "File outputs are redirects to specified directory", type: :string
   text "Possible adducts are: #{Rubabel::Molecule::ADDUCTS_LEGEND.keys.join(',')}"
   #opt :uniq, "no repeated fragments", :default => false
   text "\nrules:"
@@ -91,6 +93,7 @@ if options[:lmids]
     spectra = Mspire::Mzml::Spectrum.from_arrays(0, [masses, intensities] )
     if options[:mzml]
       outfile = lmid + '.mzML'
+      outfile = File.join(options[:outdir],outfile) if options[:outdir]
       puts "writing outfile: #{outfile}"
       require 'mspire/mzml'
       file = Mspire::Mzml.new do |mzml|
@@ -117,7 +120,20 @@ if options[:lmids]
         end
       end
       file.write(outfile)
-    end
-  end
+    end #mzml
+    if options[:mgf]
+      outfile = lmid + '.mgf'
+      outfile = File.join(options[:outdir],outfile) if options[:outdir]
+      puts "writing outfile: #{outfile}"
+      File.open(outfile,'w') do |io|
+        io.puts "BEGIN IONS"
+        io.puts "TITLE=#{lmid}"
+        io.puts "PEPMASS=#{m.mass_with_adduct}"
+        io.puts "PEAK_COUNT=#{masses.size}"
+        io.puts "COMMENT=#{lmid}"
+        masses.zip(intensities).map {|r| io.puts r.join(" ")}
+        io.puts "END IONS"
+      end
+    end #MGF
+  end #LMID loop
 end
-

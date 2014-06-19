@@ -27,32 +27,33 @@ describe Rubabel::Molecule::Fragmentable do
       
       specify 'cod: primary alcohol' do
         mol = Rubabel["NCC(O)CC"]
-        frags = mol.fragment(rules: [:cod])
+        frags = mol.fragment(rules: [:carbonyl_oxygen_dump])
+        p frags.flatten(1).map{|a| a.map(&:csmiles) }
         frags.flatten(1).map{|a| a.map(&:csmiles) }.flatten.should == ["C[NH3+]", "CCC=O", "C([NH3+])C=O", "CC"]
       end
 
       specify 'peroxide' do
         mol = Rubabel["NCC(OO)CC"]
-        frags = mol.fragment(rules: [:cod])
+        frags = mol.fragment(rules: [:carbonyl_oxygen_dump])
         frags.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["OC[NH3+]", "CCC=O", "C([NH3+])C=O", "CCO"]
       end
 
       specify 'cod: carboxylate' do
         mol = Rubabel["CCC(=O)O"]
-        pieces = mol.fragment(rules: [:cod])
+        pieces = mol.fragment(rules: [:carbonyl_oxygen_dump])
         pieces.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["[CH2-]C", "O=C=O"]
       end
 
       specify 'cod: carboxylic acid' do
         mol = Rubabel["CCC(=O)O"]
         mol.add_h!(1.5)
-        pieces = mol.fragment(rules: [:cod])
+        pieces = mol.fragment(rules: [:carbonyl_oxygen_dump])
         pieces.flatten(1).map {|a| a.map(&:csmiles)}.flatten.should == ["CC", "O=C=O"]
       end
       specify "cod sometimes causes a fake product" do 
         # loss of a carbonyl from a glycerophosplipid in the middle of the chain
         mol = Rubabel["LMGP04010962", :lmid]
-        mol.fragment(rules: [:cod]).include?(Rubabel["[C@@H](P(=O)([O-])OC[C@@H](O)CO)(OC(=O)CCCCCCCCCCCCCCC)COC(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_false
+        mol.fragment(rules: [:carbonyl_oxygen_dump]).include?(Rubabel["[C@@H](P(=O)([O-])OC[C@@H](O)CO)(OC(=O)CCCCCCCCCCCCCCC)COC(=O)CCCCCCC/C=C\\CCCCCCCC"]).should be_false
       end
     end
 
@@ -62,7 +63,7 @@ describe Rubabel::Molecule::Fragmentable do
       # charged carbo-cation.
       specify 'ether to ions' do
         mol = Rubabel["CCOCCN"]
-        frag_set = mol.fragment(rules: [:oxe])
+        frag_set = mol.fragment(rules: [:carbon_oxygen_esteal])
         frags = frag_set.first
         frags.molecules.first.csmiles.should == "C[CH2+]"
         frags.molecules.last.csmiles.should == '[O-]CC[NH3+]'
@@ -74,7 +75,7 @@ describe Rubabel::Molecule::Fragmentable do
 
       specify 'ester to ions' do
         mol = Rubabel["CCOC(=O)CCN"]
-        frag_set = mol.fragment(rules: [:oxe])
+        frag_set = mol.fragment(rules: [:carbon_oxygen_esteal])
         ff = frag_set.first.molecules.first
         ff.first.csmiles.should == 'C[CH2+]'
         ff.last.csmiles.should == '[O-]C(=O)CC[NH3+]'
@@ -87,7 +88,7 @@ describe Rubabel::Molecule::Fragmentable do
 
       specify 'carboxyl group' do
         mol = Rubabel["CCC(=O)O"]
-        frag_set = mol.fragment(rules: [:oxe])
+        frag_set = mol.fragment(rules: [:carbon_oxygen_esteal])
         ff = frag_set.first
         ff.first.csmiles.should == 'CC[C+]=O'
         # this is a carboxylate oxygen that falls off
@@ -101,7 +102,7 @@ describe Rubabel::Molecule::Fragmentable do
 
       specify 'phosphodiester' do
         mol = Rubabel["CC(COP(=O)([O-])OCCN"]
-        frag_set = mol.fragment(rules: [:oxepd])
+        frag_set = mol.fragment(rules: [:phosphate_oxygen_esteal])
         ff = frag_set.first
         ff.first.csmiles.should == '[O-]CCC' 
         #ff.last.csmiles.should == '[NH3+]CCO[P](=O)=O'
@@ -114,7 +115,7 @@ describe Rubabel::Molecule::Fragmentable do
         ff.last.exact_mass.should be_within(1e-6).of(124.016354719)
 
         mol = Rubabel["CCCOP(=O)(OCC[N+](C)(C)C)[O-]"]
-        frag_set = mol.fragment(rules: [:oxepd, :oxe])
+        frag_set = mol.fragment(rules: [:phosphate_oxygen_esteal, :carbon_oxygen_esteal])
         # some of these don't like right on first inspection, but that is
         # because we 'converted dative bonds' meaning + and - next to each
         # other are allowed to cancel one another out!
@@ -134,7 +135,7 @@ describe Rubabel::Molecule::Fragmentable do
     describe 'oxh: oxygen alpha/beta/gamma hydrogen stealing' do
       specify 'primary alcohol giving water loss' do
         mol = Rubabel["CC(O)CCN"]
-        frags = mol.fragment(rules: [:oxh])
+        frags = mol.fragment(rules: [:carbon_oxygen_esteal])
         ff = frags.first
         ff.first.csmiles.should == 'C=CCC[NH3+]'
         ff.last.csmiles.should == 'O'
@@ -151,7 +152,7 @@ describe Rubabel::Molecule::Fragmentable do
         # the rules but it follows from the broad way for creating these
         # rules.  Can prohibit peroxide formation in future if necessary...
         mol = Rubabel["CC(OO)CCN"]
-        frags = mol.fragment(rules: [:oxh])
+        frags = mol.fragment(rules: [:break_oxygens_with_double_bond])
         mols = frags.flatten
         mols.map(&:csmiles).should == ["C=CCC[NH3+]", "OO", "CC(=O)CC[NH3+]", "O", "CC=CC[NH3+]", "OO"]
         mols.map(&:formula).should == ["C4H10N+", "H2O2", "C4H10NO+", "H2O", "C4H10N+", "H2O2"]
@@ -165,8 +166,9 @@ describe Rubabel::Molecule::Fragmentable do
         # this is a good example of a 'disallowed structure' where the
         # formula's do not match up to the original formulas
         mol = Rubabel["CCOCCN"]
-        frags = mol.fragment(rules: [:oxh], errors: :ignore)
+        frags = mol.fragment(rules: [:carbon_oxygen_esteal], errors: :ignore)
         mols = frags.flatten
+        p mols
         mols.map(&:csmiles).should == ["C=C", "OCC[NH3+]", "CCO", "C=C[NH2+]"]
       end
 

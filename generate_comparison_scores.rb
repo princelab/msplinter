@@ -147,9 +147,11 @@ def calculate_f1_score(trues, matches, tests)
   # sensitivity/precision
   false_positives = tests - trues
   false_negatives = trues - matches
-  precision = matches/(matches + false_positives).to_f
+  precision = matches/(matches + false_positives).to_f || 0
   sensitivity = matches/trues.to_f
-  2*(precision*sensitivity)/(precision+sensitivity)
+  ans = 2*(precision*sensitivity)/(precision+sensitivity) || 0
+  ans = 0 if ans.nan?
+  ans
 end
 
 def stats_from_matches(trues, matches, attempts)
@@ -161,7 +163,6 @@ def optimize_f1_score(gss, cs, ppm: PPM_BIN_DEFAULT, q_max: MAXQ)
   scores = (1..q_max).to_a.map.with_index do |q,i|
     [calculate_f1_score(*stats_from_matches(gss.mzs, matches[i], cs.mzs))*q_max/q.to_f, q]
   end
-  #p scores
   scores.sort_by {|a| a.first}.reverse
 end
 
@@ -174,6 +175,24 @@ def spectral_contrast_angle(s1, s2)
   # similarity index, and spectral angle...
 end
 
+## HIT COUNT = X*hits-Y*misses+X*unpredicted  where X is a scaling factor 10>=X>=1 and Y is a scaling factor 2>X>=1
+# hits 
+def hit_count_from_numbers(hits, misses, unpredicted, x: 10, y: 1, z: 1)
+  x*hits - misses*y - z*unpredicted
+end
+def calculate_hit_count(matches, predicted, q)
+  match_count = matches.size
+  total_checked = predicted.size
+  hit_count_from_numbers(match_count, total_checked-match_count, q-total_checked)
+end
+def optimize_hit_count(gss,cs, q_max: MAXQ, ppm: PPM_BIN_DEFAULT)
+  matches = matching(gss,cs, ppm: ppm, q_max: q_max)
+  scores = (1..q_max).to_a.map.with_index do |q,i|
+    [calculate_hit_count(matches[i], cs.mzs, q), q]
+  end
+  scores.sort_by(&:first).reverse
+end
+
 # RUN ANALYSIS
 ARGV.each_slice(2) do |ground_truth_file, comparison_file|
   gss = Mspire::Mzml.open(ground_truth_file) {|mzml| mzml[0]}
@@ -183,18 +202,19 @@ ARGV.each_slice(2) do |ground_truth_file, comparison_file|
   p outfile
   File.open(outfile, 'w') do |io|
     output = []
-    output << %w(truth_file comparison_file F1-score andromedaPscore @q_depth).join(",")
+    output << %w(truth_file comparison_file optimizedF1-score @qdepth andromedaPscore @q_depth hitcountscore @q_h_depth).join(",")
     gss = Mspire::Mzml.open(ground_truth_file) {|mzml| mzml[0]}
-    p gss.mzs.size
     cs = Mspire::Mzml.open(comparison_file) {|m| m[0]}
     f1 = calculate_f1_score(*stats_from_matches(*simple_matching(gss.mzs, cs.mzs, bin_width: options[:ppm])))
     scores = AndromedaPscore.optimize(gss, cs, ppm: options[:ppm], q_max: options[:qmax])
     optimized_f1, q_f1 = optimize_f1_score(gss, cs, ppm: options[:ppm], q_max: options[:qmax]).first
-    score, q = scores.first
-    puts "optimized_F1: #{optimized_f1} @ q=#{q_f1}"
+    a_score, a_q = scores.first
+    hitcount, h_q = optimize_hit_count(gss, cs, ppm: options[:ppm], q_max: options[:qmax]).first
     puts "F1: #{f1}"
-    puts "Andromeda: #{score} @ q=#{q}"
-    output << [ground_truth_file, comparison_file, f1, score, q].join(",")
+    puts "optimized_F1: #{optimized_f1} @ q=#{q_f1}"
+    puts "Andromeda: #{a_score} @ q=#{a_q}"
+    puts "HitCount: #{hitcount} @ q=#{h_q}"
+    output << [ground_truth_file, comparison_file, optimized_f1, q_f1, a_score, h_q, hitcount, h_q].join(",")
     io.puts output
   end
 end

@@ -82,10 +82,12 @@ if options[:format] == 'smiles'
   end
 end
 if options[:lmids]
-  p options[:lmids]
-  binding.pry
   options[:lmids].map do |lmid|
-    m = Rubabel[lmid, :lmid]
+    begin
+      m = Rubabel[lmid, :lmid]
+    rescue
+      next
+    end
     m.adducts.push(*options[:adducts]) if options[:adducts]
     mols = m.fragment
     masses = mols.flatten.map(&:mass_with_adduct).flatten.sort

@@ -94,7 +94,13 @@ module Rubabel
         if rearrange
           ::Rearrangements.map do |rule|
             fragments.flatten.map do |fragment|
-              fragments << fragment.send(rule)
+              rule_fragments = fragment.send(rule)
+              if fragment_sets[rule]
+                fragment_sets[rule] = (fragment_sets[rule] + rule_fragments).flatten
+              else
+                fragment_sets[rule] = rule_fragments # am I overwriting?
+              end
+              fragments << rule_fragments
             end
           end
         end

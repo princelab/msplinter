@@ -229,7 +229,6 @@ module Rubabel
           nmol.delete_bond(carbon3, leaving_oxygen)
           nmol.add_bond!(carbon3, cyclized_oxygen)
           nitrogen.remove_a_proton!
-          nmol.split.first.write 'test.svg'
           nmol.split
         end
         # call the block search strings

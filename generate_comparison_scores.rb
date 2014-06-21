@@ -6,7 +6,7 @@ require 'optparse'
 require 'pry'
 
 PPM_BIN_DEFAULT = 10
-MAXQ = 100
+MAXQ = 40
 VERBOSE = false
 
 options = {ppm: PPM_BIN_DEFAULT, qmax: MAXQ}
@@ -27,6 +27,9 @@ opt_parse = OptionParser.new do |opts|
   end
   opts.on("-q", "--qmax N", Integer, "Set the maximum Q value for searches") do |q|
     options[:qmax] = q 
+  end
+  opts.on("-o", "--output_directory STRING", String, "Set an output directory for all files written") do |o|
+    options[:output_dir] = o
   end
 end
 
@@ -199,22 +202,28 @@ ARGV.each_slice(2) do |ground_truth_file, comparison_file|
   cs = Mspire::Mzml.open(comparison_file) {|m| m[0]}
 
   outfile = [ground_truth_file, comparison_file].map {|f| File.basename(f).gsub(File.extname(f),'')}.join('_') + '.csv'
+  outfile = File.join(options[:output_dir],outfile) if options[:output_dir]
   p outfile
   File.open(outfile, 'w') do |io|
     output = []
-    output << %w(truth_file comparison_file optimizedF1-score @qdepth andromedaPscore @q_depth hitcountscore @q_h_depth).join(",")
+    output << %w(truth_file comparison_file hits @q_hits misses, unpredicted, optimizedF1-score @qdepth andromedaPscore @q_depth hitcountscore @q_h_depth).join(",")
     gss = Mspire::Mzml.open(ground_truth_file) {|mzml| mzml[0]}
     cs = Mspire::Mzml.open(comparison_file) {|m| m[0]}
-    f1 = calculate_f1_score(*stats_from_matches(*simple_matching(gss.mzs, cs.mzs, bin_width: options[:ppm])))
+    hits, q_hit = matching(gss,cs,ppm: options[:ppm], q_max: options[:qmax]).map.with_index {|a,i| [a.size,i]}.sort_by(&:first).reverse.first
+    predicted = gss.mzs.size
+    # SUPER SLOW!!!!!!!
+    # f1 = calculate_f1_score(*stats_from_matches(*simple_matching(gss.mzs, cs.mzs, bin_width: options[:ppm])))
     scores = AndromedaPscore.optimize(gss, cs, ppm: options[:ppm], q_max: options[:qmax])
     optimized_f1, q_f1 = optimize_f1_score(gss, cs, ppm: options[:ppm], q_max: options[:qmax]).first
     a_score, a_q = scores.first
     hitcount, h_q = optimize_hit_count(gss, cs, ppm: options[:ppm], q_max: options[:qmax]).first
-    puts "F1: #{f1}"
+    puts "Hits: #{hits} @ q=#{q_hit}"
+    # SO SLOW I MUST AVOID IT... and since it seems less discerning
+    # puts "F1: #{f1}"
     puts "optimized_F1: #{optimized_f1} @ q=#{q_f1}"
     puts "Andromeda: #{a_score} @ q=#{a_q}"
     puts "HitCount: #{hitcount} @ q=#{h_q}"
-    output << [ground_truth_file, comparison_file, optimized_f1, q_f1, a_score, h_q, hitcount, h_q].join(",")
+    output << [ground_truth_file, comparison_file, hits, q_hit, predicted-hits, q_hit-hits-predicted, optimized_f1, q_f1, a_score, h_q, hitcount, h_q].join(",")
     io.puts output
   end
 end

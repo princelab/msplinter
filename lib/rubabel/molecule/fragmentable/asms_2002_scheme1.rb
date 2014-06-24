@@ -544,15 +544,16 @@ module Rubabel
         fragment_sets = []
         fragment = lambda do |*arr|
           #duplications and mapping
-          (nmol,(ring_carbon2, alcohol_carbon, oxygen)) = self.dup_molecule(arr)
+          (nmol,(ring_carbon2, alcohol_carbon, oxygen, nitrogen)) = self.dup_molecule(arr)
           # manipulate bonds
           nmol.delete_bond(alcohol_carbon, oxygen)
           alcohol_carbon.get_bond(ring_carbon2).bond_order = 2
-          #nitrogen.remove_a_proton!
+          nitrogen.inc_implicit_valence!
+          #binding.pry
           nmol.split
         end
         self.matches("N[R;C][R;C]C(O)C=C", only_uniqs).each do |nitrogen, ring_carbon1, ring_carbon2, alcohol_carbon, oxygen, carbon1, carbon2|
-          fragment_sets << fragment.call(ring_carbon2, alcohol_carbon, oxygen)
+          fragment_sets << fragment.call(ring_carbon2, alcohol_carbon, oxygen, nitrogen)
         end
         if self.adducts.empty?
           fragment_sets.flatten

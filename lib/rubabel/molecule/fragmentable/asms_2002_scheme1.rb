@@ -419,6 +419,164 @@ module Rubabel
           end
         end
       end
+      ::Rule_names << def jasms_2002_scheme1_c_e2bprime(only_uniqs: true, fragment_adduct_state: :as_published)
+        fragment_sets = []
+        fragment = lambda do |*arr|
+          #duplications and mapping
+          (nmol,(nitrogen, carbon, leaving_oxygen)) = self.dup_molecule(arr)
+          # remove the adduct
+          nmol.adducts.delete_if {|m| m.csmiles == "[Li+]"}
+          # manipulate bonds
+          nmol.delete_bond(carbon, leaving_oxygen)
+          nmol.add_bond!(carbon, nitrogen)
+          #nitrogen.remove_a_proton!
+          nmol.split
+        end
+        self.matches("NC[CH2](O)", only_uniqs).each do |nitrogen, carbon, carbon2, leaving_oxygen|
+          fragment_sets << fragment.call(nitrogen, carbon2, leaving_oxygen)
+        end
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
+        end
+      end
+      ::Rearrangements << ::Rule_names.last
+      ::Rule_names << def jasms_2002_scheme1_c_e2aprime(only_uniqs: true, fragment_adduct_state: :as_published)
+        fragment_sets = []
+        fragment = lambda do |*arr|
+          #duplications and mapping
+          (nmol,(nitrogen, branch_carbon, leaving_oxygen, cyclized_oxygen)) = self.dup_molecule(arr)
+          # remove the adduct
+          nmol.adducts.delete_if {|m| m.csmiles == "[Li+]"}
+          # manipulate bonds
+          nmol.delete_bond(leaving_oxygen, branch_carbon)
+          nmol.add_bond!(branch_carbon, cyclized_oxygen)
+          #nitrogen.remove_a_proton!
+          nmol.split
+        end
+        self.matches("NC(CO)C(O)C=C", only_uniqs).each do |nitrogen, carbon_linker, branch_carbon, leaving_oxygen, alcohol_carbon, cyclized_oxygen, carbon2, carbon3|
+          fragment_sets << fragment.call(nitrogen, branch_carbon, leaving_oxygen, cyclized_oxygen)
+        end
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
+        end
+      end
+      ::Rearrangements << ::Rule_names.last
+      ::Rule_names << def jasms_2002_scheme1_c_e2aprime_formaldehyde_loss(only_uniqs: true, fragment_adduct_state: :as_published)
+        fragment_sets = []
+        fragment = lambda do |*arr|
+          #duplications and mapping
+          (nmol,(carbon1, carbon2, oxygen, carbon3)) = self.dup_molecule(arr)
+          # manipulate bonds
+          nmol.delete_bond(carbon1, carbon2)
+          nmol.delete_bond(oxygen, carbon3)
+          oxygen.get_bond(carbon2).bond_order = 2
+          begin
+            carbon1.get_bond(carbon3).bond_order = 2
+          rescue
+            binding.pry
+          end
+          #nitrogen.remove_a_proton!
+          nmol.split
+        end
+        self.matches("N[R;C;r4][R;C;r4][R;O][R;C;r4]C=C", only_uniqs).each do |nitrogen, carbon1, carbon2, oxygen, carbon3, carbon4, carbon5|
+          fragment_sets << fragment.call(carbon1, carbon2, oxygen, carbon3)
+        end
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
+        end
+      end
+      ::Rearrangements << ::Rule_names.last
+      ::Rule_names << def jasms_2002_scheme1_c_e2bprime_water_loss(only_uniqs: true, fragment_adduct_state: :as_published)
+        fragment_sets = []
+        fragment = lambda do |*arr|
+          #duplications and mapping
+          (nmol,(ring_carbon2, alcohol_carbon, oxygen)) = self.dup_molecule(arr)
+          # manipulate bonds
+          nmol.delete_bond(alcohol_carbon, oxygen)
+          alcohol_carbon.get_bond(ring_carbon2).bond_order = 2
+          #nitrogen.remove_a_proton!
+          nmol.split
+        end
+        self.matches("N[R;C][R;C]C(O)C=C", only_uniqs).each do |nitrogen, ring_carbon1, ring_carbon2, alcohol_carbon, oxygen, carbon1, carbon2|
+          fragment_sets << fragment.call(ring_carbon2, alcohol_carbon, oxygen)
+        end
+        if self.adducts.empty?
+          fragment_sets.flatten
+        else
+          resp = case fragment_adduct_state
+          when :force_adducts
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            fragment_sets
+          when :as_published
+            # CONFIGURE THIS HERE BY Turning OFF the adduct line
+            # ADDUCT LINE
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            # This line must always be here
+            fragment_sets.flatten
+          when :no_adducts
+            fragment_sets.flatten
+          when :all
+            dups = fragment_sets.flatten.map(&:dup) 
+            fragment_sets.flatten.map {|frag| frag.adducts.push(*self.adducts)}
+            dups + fragment_sets.flatten
+          end
+        end
+      end
+      ::Rearrangements << ::Rule_names.last
   end # Fragmentable
 end # Molecule
 end #Rubabel

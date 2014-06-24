@@ -6,3 +6,4 @@ gemspec
 gem 'coveralls', require: false
 gem 'pry'
 gem 'rubabel', git: "git://github.com/princelab/rubabel.git"
+gem 'mspire'

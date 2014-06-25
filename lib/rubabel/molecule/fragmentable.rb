@@ -92,7 +92,8 @@ module Rubabel
 
 
         if rearrange
-          (::Rearrangements+::Rule_names).map do |rule|
+          ::Rearrangements.map do |rule|
+          #(::Rearrangements+::Rule_names).map do |rule|
             fragments.flatten.map do |fragment|
               rule_fragments = fragment.send(rule)
               if fragment_sets[rule]
